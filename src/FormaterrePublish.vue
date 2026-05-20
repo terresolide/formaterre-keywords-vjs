@@ -1,7 +1,9 @@
 
 <template>
+    <span>
     blsll
     <formaterre-keywords lang="en"></formaterre-keywords>
+    </span>
 </template>
 <script>
 // import FormaterreKeywords from './FormaterreKeywords.vue'
@@ -13,3 +15,5 @@ export default {
     // }
 }
 </script>
+<style>
+</style>
