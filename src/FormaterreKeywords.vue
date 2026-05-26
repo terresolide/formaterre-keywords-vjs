@@ -2,7 +2,7 @@
     <span>
         <h1>Coucou {{ lang }}</h1>
         {{ vocabularies }}
-        <div v-for="th in vocabularies">{{ th.dname }}- {{ th.filename }} - {{ th.title }}</div>
+        <div v-for="list, key in vocabularies">{{ list}}</div>
 
     </span>
 </template>
@@ -17,21 +17,42 @@ export default {
         geonetwork: {
             type: String,
             default: 'https://catalogue-terresolide.ipgp.fr/geonetwork'
+        },
+        skosmos: {
+            type: String,
+            default: null
+        },
+        required: {
+            type: Array,
+            default: () => ['local.theme.formaterre_themes']
         }
     },
     data () {
         return {
-            vocabularies: []
+            vocabularies: {}
         }
     },
     mounted () {
-        this.getVocabularies()
+        this.getVocabulariesGeonetwork()
     },
     methods: {
-        getVocabularies () {
+        getVocabulariesGeonetwork () {
             fetch(this.geonetwork + '/srv/fre/thesaurus?_content_type=json')
             .then(resp => resp.json())
-            .then(json => this.vocabularies = json[0])
+            .then(json => this.treatmentVocabulariesGeonetwork(json))
+        },
+        treatmentVocabulariesGeonetwork (json) {
+            var self = this
+            if (json[0]) {
+                json[0].forEach(function (th) {
+                    console.log(th)
+                    if (!self.vocabularies[th.dname]) {
+                        self.vocabularies[th.dname] = []
+                    }
+                    self.vocabularies[th.dname].push(th)
+                })
+            }
+            console.log(this.vocabularies)
         }
     }
 }
