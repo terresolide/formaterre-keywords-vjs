@@ -71,7 +71,13 @@ export default {
                 })
             }
             this.vocabularies = vocabularies
-        }
+        },
+        search () {
+            /** EXEMPLE DE REQUETE AVEC THESAURUS IMPOSÉ 
+             * curl -X GET "https://catalogue-terresolide.ipgp.fr/geonetwork/srv/api/registries/vocabularies/search?
+             * q=deformation&lang=eng&rows=1000&thesaurus=local.theme.formaterre_themes&thesaurus=local.theme.formaterre_cdos&
+             * type=CONTAINS&sort=DESC" -H  "accept: application/json"
+             * /
     }
 }
 
