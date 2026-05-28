@@ -1,6 +1,7 @@
 <template>
     <span>
-        <keyword-search :geonetwork="geonetwork" v-model="keywords"></keyword-search>
+        {{ value }}
+        <keyword-search :geonetwork="geonetwork" v-model="value"></keyword-search>
         <div v-for="list, key in vocabularies">{{ key}}
             <div v-for="th in list" class="sublist">
                 {{ th.title }}
@@ -15,6 +16,10 @@ export default {
     name: 'FormaterreKeywords',
     components: {KeywordSearch},
     props: {
+        value: {
+            type: Object,
+            default: () => {return {thesaurus: {}, free: []}}
+        },
         lang: {
             type: String,
             default: 'fr'
@@ -27,6 +32,10 @@ export default {
             type: String,
             default: null
         },
+        listed: {
+            type: Array,
+            default: () => ['local.theme.formaterre_themes']
+        },
         required: {
             type: Array,
             default: () => ['local.theme.formaterre_themes']
@@ -38,16 +47,11 @@ export default {
         excluded: {
             type: Array,
             default: () => ['external.dataCentre.formater-distributor']
-        },
-        keywords: {
-            type: Object,
-            default: () => {return {thesaurus: {}, free: []}}
         }
     },
     data () {
         return {
-            vocabularies: {},
-            keywords: {thesaurus: {}, free: {}}
+            vocabularies: {}
         }
     },
     computed: {
