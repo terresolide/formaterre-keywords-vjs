@@ -1,8 +1,6 @@
 <template>
     <span>
-       {{ lang }} {{ geonetwork }}
-        <h1>{{lang }}</h1>
-        {{ skosmos }}
+        <keyword-search :geonetwork="geonetwork" v-model="keywords"></keyword-search>
         <div v-for="list, key in vocabularies">{{ key}}
             <div v-for="th in list" class="sublist">
                 {{ th.title }}
@@ -12,8 +10,10 @@
     </span>
 </template>
 <script>
+import KeywordSearch from './KeywordSearch.vue';
 export default {
     name: 'FormaterreKeywords',
+    components: {KeywordSearch},
     props: {
         lang: {
             type: String,
@@ -25,20 +25,29 @@ export default {
         },
         skosmos: {
             type: String,
-            default: 'NULL'
+            default: null
         },
         required: {
             type: Array,
             default: () => ['local.theme.formaterre_themes']
         },
-        excluded: {
+        recommanded: {
             type: Array,
             default: () => []
+        },
+        excluded: {
+            type: Array,
+            default: () => ['external.dataCentre.formater-distributor']
+        },
+        keywords: {
+            type: Object,
+            default: () => {return {thesaurus: {}, free: []}}
         }
     },
     data () {
         return {
-            vocabularies: {}
+            vocabularies: {},
+            keywords: {thesaurus: {}, free: {}}
         }
     },
     computed: {
@@ -61,23 +70,19 @@ export default {
         },
         treatmentVocabulariesGeonetwork (json) {
             var vocabularies = {}
+            var self = this
             if (json[0]) {
                 json[0].forEach(function (th) {
-                    console.log(th)
-                    if (!vocabularies[th.dname]) {
-                        vocabularies[th.dname] = []
+                    if (self.excluded.indexOf(th.key) < 0) {
+                        if (!vocabularies[th.dname]) {
+                            vocabularies[th.dname] = []
+                        }
+                        vocabularies[th.dname].push(th)
                     }
-                    vocabularies[th.dname].push(th)
                 })
             }
             this.vocabularies = vocabularies
-        },
-        search () {
-            /** EXEMPLE DE REQUETE AVEC THESAURUS IMPOSÉ 
-             * curl -X GET "https://catalogue-terresolide.ipgp.fr/geonetwork/srv/api/registries/vocabularies/search?
-             * q=deformation&lang=eng&rows=1000&thesaurus=local.theme.formaterre_themes&thesaurus=local.theme.formaterre_cdos&
-             * type=CONTAINS&sort=DESC" -H  "accept: application/json"
-             * /
+        }
     }
 }
 
