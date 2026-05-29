@@ -1,7 +1,7 @@
 <template>
     <span>
         {{ keywords }}
-        <keyword-search :geonetwork="geonetwork" :types="types" :listed="listed" v-model="keywords"></keyword-search>
+        <keyword-search :geonetwork="geonetwork" :types="types" :listed="listed" v-model="keywords" @input="update"></keyword-search>
         <div class="voclist">
             <div v-for="list, key in vocabularies">{{ types[key].name }}
                 <div v-for="th in list" class="sublist">
@@ -30,6 +30,10 @@ export default {
     name: 'FormaterreKeywords',
     components: {KeywordSearch},
     props: {
+        value: {
+            type: Object,
+            default: () => {return {thesaurus: {}, free: []}}
+        },
         lang: {
             type: String,
             default: 'fr'
@@ -109,6 +113,7 @@ export default {
         }
     },
     mounted () {
+        this.keywords = this.value
         this.getVocabulariesGeonetwork()
     },
     methods: {
@@ -151,6 +156,10 @@ export default {
                 })
             }
             this.vocabularies = vocabularies
+        },
+        update (x, y) {
+            console.log(x)
+            console.log(y)
         }
     }
 }
