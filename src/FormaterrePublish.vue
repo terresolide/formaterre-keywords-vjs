@@ -1,9 +1,10 @@
 
 <template>
     <span>
-    blsll
-    <formaterre-keywords lang="en"></formaterre-keywords>
-    <button @click="getValues">get value</button>
+        {{ keywords }}
+
+    <formaterre-keywords lang="en" v-model="keywords"></formaterre-keywords>
+   
     </span>
 </template>
 <script>
@@ -13,6 +14,11 @@ export default {
     name: 'FormaterrePublish',
     components: {
         FormaterreKeywords
+    },
+    data () {
+        return {
+            keywords: {thesaurus: {}, free: []}
+        }
     },
     methods: {
         getValues () {

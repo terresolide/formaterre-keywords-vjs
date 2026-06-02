@@ -1,13 +1,12 @@
 <template>
     <span>
-        {{ keywords }}
-        <keyword-search :geonetwork="geonetwork" :types="types" :listed="listed" v-model="keywords" @input="update"></keyword-search>
+        <keyword-search :geonetwork="geonetwork" :types="types" :listed="listed" :keywords="value" @add="add" @remove="remove"></keyword-search>
         <div class="voclist">
             <div v-for="list, key in vocabularies">{{ types[key].name }}
                 <div v-for="th in list" class="sublist">
                     {{ th.title }}
-                    <div v-if="keywords.thesaurus[th.key]" class="list-keyword">
-                        <div v-for="item in keywords.thesaurus[th.key]" class="keyword" >
+                    <div v-if="value.thesaurus[th.key]" class="list-keyword">
+                        <div v-for="item in value.thesaurus[th.key]" class="keyword" >
                             <span class="close" @click="remove(th.key, item)">&times;</span>
                             {{ item.values.fre }} | {{ item.values.eng }}
                         </div>
@@ -18,9 +17,16 @@
             </div>
         </div>
         <div class="voclist">
-            <div v-for="list, key in vocabularies" class="">
-                {{types[key].name}}
+            <div v-for="type, key in types" class="">
+                {{type.name}}
+                <div class="list-keyword">
+                    <div v-for="item, index in value.free" v-if="item.type === key" class="keyword" >
+                        <span class="close" @click="remove(null, index)">&times;</span>
+                        {{ item.fr }} | {{ item.en }}
+                    </div>
+                </div>
             </div>
+            
         </div>
     </span>
 </template>
@@ -65,7 +71,6 @@ export default {
     },
     data () {
         return {
-            keywords: {thesaurus: {}, free: []},
             vocabularies: {},
             types: {
                 discipline: {
@@ -113,10 +118,33 @@ export default {
         }
     },
     mounted () {
-        this.keywords = this.value
         this.getVocabulariesGeonetwork()
     },
     methods: {
+        add (keyword) {
+            if (keyword.uri) {
+                this.addResult(keyword)
+            } else {
+                this.addFree(keyword)
+            }
+        },
+        addFree (keyword) {
+            var free = this.value.free
+            free.push(keyword)
+
+            this.$emit('input', {...this.value, free: free})
+           
+        },
+        addResult (keyword) {
+            var thesaurus = Object.assign(this.value.thesaurus, {})
+            if (!thesaurus[keyword.vocab]) {
+                thesaurus[keyword.vocab] = []
+            }
+            thesaurus[keyword.vocab].push(keyword)
+            this.$emit('input', {...this.value, thesaurus: thesaurus})
+            this.$forceUpdate()
+
+        },
         getVocabulariesGeonetwork () {
             fetch(this.geonetwork + '/srv/' + this.locale + '/thesaurus?_content_type=json')
             .then(resp => resp.json())
@@ -128,19 +156,24 @@ export default {
         remove (vocab, item) {
             console.log(vocab)
             console.log(item)
-           var thesaurus = Object.assign(this.keywords.thesaurus, {})
-           if (thesaurus[vocab]) {
-            console.log(thesaurus)
-             var find = thesaurus[vocab].findIndex(it => it.uri === item.uri)
-             if (find >= 0) {
-                thesaurus[vocab].splice(find, 1)
-                var keywords = Object.assign(this.keywords, {thesaurus: thesaurus})
-                this.keywords = keywords
+            var thesaurus = Object.assign(this.value.thesaurus, {})
+            if (thesaurus[vocab]) {
+                console.log(thesaurus)
+                var find = thesaurus[vocab].findIndex(it => it.uri === item.uri)
+                if (find >= 0) {
+                    thesaurus[vocab].splice(find, 1)
+                // var keywords = Object.assign(this.keywords, {thesaurus: thesaurus})
+                    this.$emit('input', {...this.value, thesaurus: thesaurus})
+                    this.$forceUpdate()
+                }
+            } else {
+                var free = this.value.free
+                free.splice(item, 1)
+                this.$emit('input', {...this.value, free: free})
                 this.$forceUpdate()
-             }
            }
 
-           console.log(this.keywords.thesaurus[vocab])
+           // console.log(this.keywords.thesaurus[vocab])
         },
         treatmentVocabulariesGeonetwork (json) {
             var vocabularies = {}
