@@ -118,6 +118,7 @@ export default {
         }
     },
     mounted () {
+        this.getListed()
         this.getVocabulariesGeonetwork()
     },
     methods: {
@@ -151,7 +152,16 @@ export default {
             .then(json => this.treatmentVocabulariesGeonetwork(json))
         },
         getListed () {
-
+            var url = this.geonetwork + '/srv/api/registries/vocabularies/' 
+            this.listed.forEach(function (name) {
+                fetch(url + name, {headers: {accept: 'text/xml'}})
+                .then(resp => resp.text())
+                .then(str => {
+                    let newNode = new DOMParser().parseFromString(str, 'application/xml');
+                    console.log(newNode)
+                })
+            })
+            
         },
         remove (vocab, item) {
             console.log(vocab)
