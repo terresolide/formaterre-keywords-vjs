@@ -1,9 +1,17 @@
 <template>
     <span>
         <keyword-search :geonetwork="geonetwork" :types="types" :listed="listed" :keywords="value" @add="add" @remove="remove"></keyword-search>
+        <div v-for="th in checkVocabularies">
+            {{ th.title }}
+            <span v-for="kw in th.items"  @click="toggle(th.key,  kw)" class="check-listed">
+                <input type="checkbox" :checked="isChecked(th.key, kw.uri)"/> {{ kw.value }}
+            </span>
+        </div>
+
+        </div>
         <div class="voclist">
-            <div v-for="list, key in vocabularies">{{ types[key].name }}
-                <div v-for="th in list" class="sublist">
+            <div v-for="list, key in vocabularies" >{{ types[key].name }}
+                <div v-for="th in list" class="sublist" v-if="listed.indexOf(th.key) < 0">
                     {{ th.title }}
                     <div v-if="value.thesaurus[th.key]" class="list-keyword">
                         <div v-for="item in value.thesaurus[th.key]" class="keyword" >
@@ -32,6 +40,8 @@
 </template>
 <script>
 import KeywordSearch from './KeywordSearch.vue';
+import reader from './rdf-reader.js'
+
 export default {
     name: 'FormaterreKeywords',
     components: {KeywordSearch},
@@ -72,6 +82,7 @@ export default {
     data () {
         return {
             vocabularies: {},
+            checkVocabularies: [],
             types: {
                 discipline: {
                     name: 'Discipline',
@@ -82,7 +93,7 @@ export default {
                     definition: 'Mot clé identifiant un sujet particulier'
                 },
                 platform: {
-                    name: 'Platforme',
+                    name: 'Plateforme',
                     definition: 'Mot clé identifiant une plateforme'
                 },
                 place: {
@@ -118,8 +129,9 @@ export default {
         }
     },
     mounted () {
-        this.getListed()
+        
         this.getVocabulariesGeonetwork()
+        
     },
     methods: {
         add (keyword) {
@@ -149,19 +161,47 @@ export default {
         getVocabulariesGeonetwork () {
             fetch(this.geonetwork + '/srv/' + this.locale + '/thesaurus?_content_type=json')
             .then(resp => resp.json())
-            .then(json => this.treatmentVocabulariesGeonetwork(json))
+            .then(json => {
+                this.treatmentVocabulariesGeonetwork(json)
+                this.getListed()
+            })
         },
         getListed () {
             var url = this.geonetwork + '/srv/api/registries/vocabularies/' 
+            console.log(reader)
+            
+            var self = this
             this.listed.forEach(function (name) {
-                fetch(url + name, {headers: {accept: 'text/xml'}})
-                .then(resp => resp.text())
-                .then(str => {
-                    let newNode = new DOMParser().parseFromString(str, 'application/xml');
-                    console.log(newNode)
+                var type = name.split('.')[1]
+                var index = self.vocabularies[type].findIndex(x => x.key === name)
+                reader.load(url + name)
+                .then(th => {
+                    console.log(self.vocabularies)
+                    console.log(th)
+                    self.vocabularies[type][index].items = th
+                    self.checkVocabularies.push(self.vocabularies[type][index])
                 })
             })
             
+        },
+        isChecked (thesaurus, uri) {
+            if (!this.value.thesaurus[thesaurus]) {
+                return false
+            }
+            var find = this.value.thesaurus[thesaurus].find(x => x.uri === uri)
+            if (!find) {
+                return false
+            }
+            return find
+        },
+        toggle (vocab, item) {
+            if (this.isChecked(vocab, item.uri)) {
+                this.remove(vocab, {uri: item.uri})
+            } else {
+                item.vocab = vocab
+                this.addResult(item)
+                this.$forceUpdate()
+            }
         },
         remove (vocab, item) {
             console.log(vocab)
@@ -194,6 +234,9 @@ export default {
                         if (!vocabularies[th.dname]) {
                             vocabularies[th.dname] = []
                         }
+                        if (self.listed.indexOf(th.key) > 0) {
+                            th.listed = true
+                        }
                         vocabularies[th.dname].push(th)
                     }
                 })
@@ -209,6 +252,11 @@ export default {
 
 </script>
 <style scoped>
+.check-listed {
+    display:inline-block;
+    min-width:150px;
+    padding:1px 5px;
+}
 .sublist {
     margin-left: 10px;
 }
