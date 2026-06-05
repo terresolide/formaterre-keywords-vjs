@@ -20,13 +20,17 @@
             <div v-for="list, key in vocabularies" ><label>{{ types[key].name }}</label>
                 <div v-for="th in list" class="sublist" v-if="listed.indexOf(th.key) < 0">
                     <h4>{{ th.title }} <button @click="load(th)">Charger</button></h4>
-                    <div v-if="value.thesaurus[th.key]" class="list-keyword">
-                        <div v-for="item in value.thesaurus[th.key]" class="keyword" >
-                            <span class="close" @click="remove(th.key, item)">&times;</span>
-                            {{ item.values.fre }} | {{ item.values.eng }}
+                    <template v-if="th.items">
+                        <thesaurus-tree :items="th.items" :selected="value.thesaurus[th.key]" @add="addResult" @remove="remove"></thesaurus-tree>
+                    </template>
+                    <template v-else>
+                        <div v-if="value.thesaurus[th.key]" class="list-keyword">
+                            <div v-for="item in value.thesaurus[th.key]" class="keyword" >
+                                <span class="close" @click="remove(th.key, item)">&times;</span>
+                                {{ item.values.fre }} | {{ item.values.eng }}
+                            </div>
                         </div>
-                    </div>
-                
+                    </template>
                 </div>
             
             </div>
@@ -48,11 +52,12 @@
 </template>
 <script>
 import KeywordSearch from './KeywordSearch.vue';
+import ThesaurusTree from './ThesaurusTree.vue'
 import reader from './rdf-reader.js'
 
 export default {
     name: 'FormaterreKeywords',
-    components: {KeywordSearch},
+    components: {KeywordSearch, ThesaurusTree},
     props: {
         value: {
             type: Object,
@@ -160,6 +165,7 @@ export default {
            
         },
         addResult (keyword) {
+            console.log(keyword)
             var thesaurus = Object.assign(this.value.thesaurus, {})
             if (!thesaurus[keyword.vocab]) {
                 thesaurus[keyword.vocab] = []
@@ -185,10 +191,9 @@ export default {
             this.listed.forEach(function (name) {
                 var type = name.split('.')[1]
                 var index = self.vocabularies[type].findIndex(x => x.key === name)
-                reader.load(url + name)
+                reader.load(url, name)
                 .then(th => {
-                    console.log(self.vocabularies)
-                    console.log(th)
+        
                     self.vocabularies[type][index].items = th
                     self.checkVocabularies.push(self.vocabularies[type][index])
                 })
@@ -206,10 +211,13 @@ export default {
             return find
         },
         load(thesaurus) {
-            var url = this.geonetwork + '/srv/api/registries/vocabularies/' 
-            reader.load(url + thesaurus.key)
-            .then (th => {
-                console.log(th)
+            var url = this.geonetwork + '/srv/api/registries/vocabularies/'
+            var self = this
+            reader.load(url,  thesaurus.key)
+            .then (items => {
+                var index = self.vocabularies[thesaurus.dname].findIndex(x => x.key === thesaurus.key)
+                self.vocabularies[thesaurus.dname][index].items = items
+                self.$forceUpdate()
             })
         },
         toggle (vocab, item) {

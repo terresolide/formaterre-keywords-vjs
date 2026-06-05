@@ -3,10 +3,11 @@
  */
 
 const reader = {
-
-    load (url) {
+    name: null,
+    load (url, name) {
+      this.name = name
       return new Promise((success, reject) => {
-        fetch(url, {headers: {accept: 'text/xml'}})
+        fetch(url + name, {headers: {accept: 'text/xml'}})
         .then(resp => resp.text())
         .then(str => {
            var thesauri = this.extract(str)
@@ -49,7 +50,7 @@ const reader = {
             return ns[prefix]
         }
       }
-      var  result = root.evaluate('//rdf:Description[skos:prefLabel]',root, nsResolver, XPathResult.ANY_TYPE, null)
+      var  result = root.evaluate('//rdf:Description[skos:prefLabel and rdf:type/@rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"]',root, nsResolver, XPathResult.ANY_TYPE, null)
       var node = null
       var kws = []
       while (node = result.iterateNext()) {
@@ -76,6 +77,7 @@ const reader = {
           x = labels.iterateNext()
         }
         var item = {
+          vocab: this.name,
           uri: uri,
           value: values.fre,
           values: values
@@ -87,6 +89,7 @@ const reader = {
           kws[findIndex].value = kws[findIndex].values.fre
         } else {
           kws.push(item)
+          findIndex = kws.length - 1
         }
         // search broader
         var broader = root.evaluate('//rdf:Description[@rdf:about="' + uri + '"]/skos:broader/@rdf:resource', root, nsResolver, XPathResult.STRING_TYPE, null)
@@ -97,17 +100,36 @@ const reader = {
           console.log('broader = ', broader)
         }
         if (broader.stringValue) {
-          console.log(broader.stringValue.toUpperCase())
+          kws[findIndex].broader = broader.stringValue
         }
+        // order hierachical keywords
+        
+
         // console.log(labelEN)
       }
-      kws.sort((a, b) => {
+       kws.sort((a, b) => {
         if (a.value > b.value) {
           return 1
         }
         return -1
       })
-      return kws
+      var keywords = this.orderItems(kws, null)
+  
+      return keywords
+    },
+    orderItems(kws, kw) {
+      
+      if (!kw) {
+        var keywords = kws.filter(x => !x.broader || typeof x.broader === undefined) 
+         
+      } else {
+        var keywords = kws.filter(x => x.broader === kw.uri)
+      }
+      for(var i=0; i < keywords.length; i ++) {
+         keywords[i].items = this.orderItems(kws, keywords[i])
+      }
+      return keywords
+
     }
 }
 module.exports = reader
