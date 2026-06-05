@@ -1,6 +1,7 @@
 <template>
   <span> 
-    <input v-model="query" type="text"  @focus="show=true" @keyup="search" />
+    <div>Note explicative</div>
+    Rechercher <input v-model="query" type="text"  @focus="show=true" @keyup="search" />
     <div style="position:relative;">
       <div v-if="show && query.length > 2" class="tt-menu" 
         style="position: absolute; top: 0; left: 50px; z-index: 100; /*! display: none; */">
@@ -54,6 +55,10 @@ export default {
       default: null
     },
     listed: {
+      type: Array,
+      default: () => []
+    },
+    excluded: {
       type: Array,
       default: () => []
     },
@@ -174,6 +179,9 @@ export default {
        
         var self = this
         json.forEach(function (item) {
+          if (self.excluded.indexOf(item.vocab || item.thesaurusKey) >= 0) {
+            return
+          }
           if (self.keywords.thesaurus[item.vocab || item.thesaurusKey]) {
             var find = self.keywords.thesaurus[item.vocab || item.thesaurusKey].findIndex(voc => voc.uri === item.uri)
             if (find >=0) {

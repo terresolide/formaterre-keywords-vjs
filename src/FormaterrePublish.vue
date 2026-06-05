@@ -17,7 +17,7 @@ export default {
     },
     data () {
         return {
-            keywords: {thesaurus: {}, free: []}
+            keywords: {thesaurus: {}, free: {}}
         }
     },
     methods: {

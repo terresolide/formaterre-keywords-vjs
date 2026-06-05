@@ -1,18 +1,25 @@
 <template>
     <span>
-        <keyword-search :geonetwork="geonetwork" :types="types" :listed="listed" :keywords="value" @add="add" @remove="remove"></keyword-search>
+        <template v-if="listed.length > 0">
+        <h2>Principale(s) classification(s)</h2>
         <div v-for="th in checkVocabularies">
-            {{ th.title }}
+            <label>{{ th.title }}</label>
+            <div>
             <span v-for="kw in th.items"  @click="toggle(th.key,  kw)" class="check-listed">
-                <input type="checkbox" :checked="isChecked(th.key, kw.uri)"/> {{ kw.value }}
+                <input type="checkbox" :checked="isChecked(th.key, kw.uri)"/> <span>{{ kw.value }}</span>
             </span>
+            </div>
         </div>
-
-        </div>
+        </template>
+        <h2>Autres mots-clés</h2>
+         <keyword-search :geonetwork="geonetwork" :types="types" :listed="listed" :keywords="value"
+         :excluded="excluded" @add="add" @remove="remove"></keyword-search>
+       
         <div class="voclist">
-            <div v-for="list, key in vocabularies" >{{ types[key].name }}
+            <h3>Mots-clés de thésaurus</h3>
+            <div v-for="list, key in vocabularies" ><label>{{ types[key].name }}</label>
                 <div v-for="th in list" class="sublist" v-if="listed.indexOf(th.key) < 0">
-                    {{ th.title }}
+                    <h4>{{ th.title }} <button @click="load(th)">Charger</button></h4>
                     <div v-if="value.thesaurus[th.key]" class="list-keyword">
                         <div v-for="item in value.thesaurus[th.key]" class="keyword" >
                             <span class="close" @click="remove(th.key, item)">&times;</span>
@@ -25,11 +32,12 @@
             </div>
         </div>
         <div class="voclist">
-            <div v-for="type, key in types" class="">
-                {{type.name}}
+            <h3>Mots-clés libres</h3>
+            <div v-for="list, type in value.free"  class="">
+                <label>{{ types[type].name }}</label>
                 <div class="list-keyword">
-                    <div v-for="item, index in value.free" v-if="item.type === key" class="keyword" >
-                        <span class="close" @click="remove(null, index)">&times;</span>
+                    <div v-for="item, index in list" class="keyword" >
+                        <span class="close" @click="remove(null, item, index)">&times;</span>
                         {{ item.fr }} | {{ item.en }}
                     </div>
                 </div>
@@ -48,7 +56,7 @@ export default {
     props: {
         value: {
             type: Object,
-            default: () => {return {thesaurus: {}, free: []}}
+            default: () => {return {thesaurus: {}, free: {}}}
         },
         lang: {
             type: String,
@@ -76,7 +84,7 @@ export default {
         },
         excluded: {
             type: Array,
-            default: () => ['external.dataCentre.formater-distributor']
+            default: () => ['external.dataCentre.formater-distributor', 'local.theme.polarisation', 'local.theme.ron']
         }
     },
     data () {
@@ -140,11 +148,14 @@ export default {
             } else {
                 this.addFree(keyword)
             }
+            this.$forceUpdate()
         },
         addFree (keyword) {
             var free = this.value.free
-            free.push(keyword)
-
+            if (!free[keyword.type]) {
+                free[keyword.type] = []
+            }
+            free[keyword.type].push(keyword)
             this.$emit('input', {...this.value, free: free})
            
         },
@@ -155,7 +166,7 @@ export default {
             }
             thesaurus[keyword.vocab].push(keyword)
             this.$emit('input', {...this.value, thesaurus: thesaurus})
-            this.$forceUpdate()
+            
 
         },
         getVocabulariesGeonetwork () {
@@ -194,6 +205,13 @@ export default {
             }
             return find
         },
+        load(thesaurus) {
+            var url = this.geonetwork + '/srv/api/registries/vocabularies/' 
+            reader.load(url + thesaurus.key)
+            .then (th => {
+                console.log(th)
+            })
+        },
         toggle (vocab, item) {
             if (this.isChecked(vocab, item.uri)) {
                 this.remove(vocab, {uri: item.uri})
@@ -203,7 +221,7 @@ export default {
                 this.$forceUpdate()
             }
         },
-        remove (vocab, item) {
+        remove (vocab, item, index) {
             console.log(vocab)
             console.log(item)
             var thesaurus = Object.assign(this.value.thesaurus, {})
@@ -218,7 +236,10 @@ export default {
                 }
             } else {
                 var free = this.value.free
-                free.splice(item, 1)
+                free[item.type].splice(index, 1)
+                if (free[item.type].length === 0) {
+                    delete free[item.type]
+                }
                 this.$emit('input', {...this.value, free: free})
                 this.$forceUpdate()
            }
@@ -234,7 +255,7 @@ export default {
                         if (!vocabularies[th.dname]) {
                             vocabularies[th.dname] = []
                         }
-                        if (self.listed.indexOf(th.key) > 0) {
+                        if (self.listed.indexOf(th.key) > 0) {x.getAttribute('xml:lang')
                             th.listed = true
                         }
                         vocabularies[th.dname].push(th)
@@ -252,10 +273,30 @@ export default {
 
 </script>
 <style scoped>
+label {
+    font-weight:700;
+    display:block;
+    margin: 10px 0;
+}
 .check-listed {
     display:inline-block;
-    min-width:150px;
+    min-width:250px;
+    width:250px;
     padding:1px 5px;
+    vertical-align:top;
+    cursor: pointer;
+}
+.check-listed:hover {
+    background: rgba(100,0,0, 0.1);
+}
+.check-listed input[type="checkbox"] {
+    display:inline-block;
+    vertical-align:top;
+}
+.check-listed span {
+    display:inline-block;
+    vertical-align:top;
+    width:calc(100% - 30px);
 }
 .sublist {
     margin-left: 10px;

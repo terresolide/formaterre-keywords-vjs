@@ -80,8 +80,25 @@ const reader = {
           value: values.fre,
           values: values
         }
-        kws.push(item)
-
+        // find 
+        var findIndex = kws.findIndex(x => x.uri === uri)
+        if (findIndex >= 0) {
+          kws[findIndex].values = Object.assign(kws[findIndex].values, values)
+          kws[findIndex].value = kws[findIndex].values.fre
+        } else {
+          kws.push(item)
+        }
+        // search broader
+        var broader = root.evaluate('//rdf:Description[@rdf:about="' + uri + '"]/skos:broader/@rdf:resource', root, nsResolver, XPathResult.STRING_TYPE, null)
+        // console.log(broader)
+        if (broader.resultType !== XPathResult.STRING_TYPE) {
+          continue
+        } else {
+          console.log('broader = ', broader)
+        }
+        if (broader.stringValue) {
+          console.log(broader.stringValue.toUpperCase())
+        }
         // console.log(labelEN)
       }
       kws.sort((a, b) => {
