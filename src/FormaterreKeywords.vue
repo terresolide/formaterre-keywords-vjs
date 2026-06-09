@@ -19,18 +19,22 @@
             <h3>Mots-clés de thésaurus</h3>
             <div v-for="list, key in vocabularies" ><label>{{ types[key].name }}</label>
                 <div v-for="th in list" class="sublist" v-if="listed.indexOf(th.key) < 0">
-                    <h4>{{ th.title }} <button @click="load(th)">Charger</button></h4>
-                    <template v-if="th.items">
-                        <thesaurus-tree :items="th.items" :selected="value.thesaurus[th.key]" @add="addResult" @remove="remove"></thesaurus-tree>
-                    </template>
-                    <template v-else>
+                    <h4 :id="th.key.replaceAll(/\.|\-/g, '')">{{ th.title }} <button @click="load(th)">Afficher</button></h4>
+                    <div v-if="renderComponent" class="thesaurus">
+                        <span @click="closeThesaurus(th.key.replaceAll(/\.|\-/g, ''))" class="mini-button close">&times;</span>
+                        <h4>{{ th.title }}</h4>
+                        <div>
+                            <thesaurus-tree :key="key" :thesaurus="th.key" :items="th.items" :selected="value.thesaurus[th.key]" @add="addResult" @remove="remove"></thesaurus-tree>
+                        </div>
+                    </div>
+                    <div>
                         <div v-if="value.thesaurus[th.key]" class="list-keyword">
                             <div v-for="item in value.thesaurus[th.key]" class="keyword" >
                                 <span class="close" @click="remove(th.key, item)">&times;</span>
                                 {{ item.values.fre }} | {{ item.values.eng }}
                             </div>
                         </div>
-                    </template>
+                    </div>
                 </div>
             
             </div>
@@ -94,8 +98,10 @@ export default {
     },
     data () {
         return {
+            key: 0,
             vocabularies: {},
             checkVocabularies: [],
+            renderComponent: true,
             types: {
                 discipline: {
                     name: 'Discipline',
@@ -153,7 +159,7 @@ export default {
             } else {
                 this.addFree(keyword)
             }
-            this.$forceUpdate()
+            this.update()
         },
         addFree (keyword) {
             var free = this.value.free
@@ -174,6 +180,10 @@ export default {
             this.$emit('input', {...this.value, thesaurus: thesaurus})
             
 
+        },
+        closeThesaurus (id) {
+            var node = this.$el.querySelector('#' + id)
+            node.classList.remove('expand')
         },
         getVocabulariesGeonetwork () {
             fetch(this.geonetwork + '/srv/' + this.locale + '/thesaurus?_content_type=json')
@@ -211,12 +221,26 @@ export default {
             return find
         },
         load(thesaurus) {
+            
+            var node = this.$el.querySelector('#' + thesaurus.key.replaceAll(/\.|\-/g, ''))
+           
+            var index = this.vocabularies[thesaurus.dname].findIndex(x => x.key === thesaurus.key)
+                
+            if (this.vocabularies[thesaurus.dname][index].items) {
+                // close all expand
+                var nodes = this.$el.querySelectorAll('.expand')
+                nodes.forEach(function (item) {
+                    item.classList.remove('expand')
+                })
+                node.classList.add('expand')
+                return
+            } 
             var url = this.geonetwork + '/srv/api/registries/vocabularies/'
             var self = this
             reader.load(url,  thesaurus.key)
             .then (items => {
-                var index = self.vocabularies[thesaurus.dname].findIndex(x => x.key === thesaurus.key)
                 self.vocabularies[thesaurus.dname][index].items = items
+                node.classList.add('expand')
                 self.$forceUpdate()
             })
         },
@@ -234,14 +258,16 @@ export default {
             console.log(item)
             var thesaurus = Object.assign(this.value.thesaurus, {})
             if (thesaurus[vocab]) {
-                console.log(thesaurus)
-                var find = thesaurus[vocab].findIndex(it => it.uri === item.uri)
-                if (find >= 0) {
-                    thesaurus[vocab].splice(find, 1)
+                var newvocab = thesaurus[vocab].filter(it => it.uri != item.uri)
+                thesaurus[vocab] = newvocab
                 // var keywords = Object.assign(this.keywords, {thesaurus: thesaurus})
-                    this.$emit('input', {...this.value, thesaurus: thesaurus})
-                    this.$forceUpdate()
-                }
+                    this.$emit('input', {...this.value, thesaurus: this.value.thesaurus})
+                    this.update()
+                    // console.log(vocab)
+                    // var node = this.$el.querySelector('#' + vocab.replaceAll(/\.|\-/g, '') + ' + div > thesaurus-tree')
+                    // console.log(node)
+                    // node.$forceUpdate()
+                
             } else {
                 var free = this.value.free
                 free[item.type].splice(index, 1)
@@ -272,14 +298,29 @@ export default {
             }
             this.vocabularies = vocabularies
         },
-        update (x, y) {
-            console.log(x)
-            console.log(y)
+        update () {
+            this.$forceUpdate()
+            this.renderComponent = false
+            this.$nextTick(() => {
+                this.renderComponent = true
+            })
+            
         }
     }
 }
 
 </script>
+<style>
+span.mini-button {
+    padding:0 3px;
+    border:1px dotted transparent;
+    line-height:1;
+    cursor:pointer;
+}
+span.mini-button:hover {
+    border-color:darkgrey;
+}
+</style>
 <style scoped>
 label {
     font-weight:700;
@@ -307,6 +348,7 @@ label {
     width:calc(100% - 30px);
 }
 .sublist {
+    position:relative;
     margin-left: 10px;
 }
 .voclist {
@@ -337,7 +379,31 @@ label {
   color: darkred;
   vertical-align:top;
 }
+.mini-button.close {
+    top:1px;
+}
 .close:hover {
    color: red;
+}
+.thesaurus {
+    position:fixed;
+    display: none;
+    max-width: 900px;
+    background: white;
+    padding: 0px 10px 30px 10px;
+    top: 50%;
+    left: 50%;
+transform: translate(-50%, -50%);
+    z-index:1;
+    -webkit-box-shadow: 0 0 3px rgba(0,0,0,.5);
+  box-shadow: 0 0 3px rgba(0,0,0,.5);
+}
+h4.expand + div.thesaurus {
+    display: block;
+}
+.thesaurus > div {
+    padding-right:15px;
+    max-height:calc(100vh - 160px);
+   overflow-y:scroll; 
 }
 </style>

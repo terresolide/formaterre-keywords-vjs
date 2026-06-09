@@ -50,7 +50,19 @@ const reader = {
             return ns[prefix]
         }
       }
-      var  result = root.evaluate('//rdf:Description[skos:prefLabel and rdf:type/@rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"]',root, nsResolver, XPathResult.ANY_TYPE, null)
+      // search hasTopConcept
+      var result = root.evaluate('//skos:hasTopConcept/@rdf:resource', root, nsResolver, XPathResult.ANY_TYPE, null)
+      console.log(result)
+      if (result.resultType !== XPathResult.UNORDERED_NODE_ITERATOR_TYPE && result.resultType !== XPathResult.ORDERED_NODE_ITERATOR_TYPE) {
+        return null
+      } else {
+        var node = null
+        while (node = result.iterateNext()) {
+          console.log(node.value)
+        }
+      }
+      return
+      var  result = root.evaluate('//rdf:Description[skos:prefLabel and rdf:type/@rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"]|//skos:Concept[skos:prefLabel]',root, nsResolver, XPathResult.ANY_TYPE, null)
       var node = null
       var kws = []
       while (node = result.iterateNext()) {
@@ -61,8 +73,6 @@ const reader = {
         var values = {}
         var x = labels.iterateNext()
         while(x) {
-          console.log(x)
-          console.log(x.getAttribute('xml:lang'))
           var lang = x.getAttribute('xml:lang')
           switch(x.getAttribute('xml:lang')) {
             case 'fr':
@@ -71,6 +81,8 @@ const reader = {
             case 'en':
               lang = 'eng'
               break
+            default:
+              continue
           }
           values[lang] = x.innerHTML
           console.log(x.innerHTML)
