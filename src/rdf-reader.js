@@ -46,6 +46,8 @@ const reader = {
             return ns.rdf
           case 'skos':
             return ns.skos
+          case 'xml':
+            return 'http://www.w3.org/XML/1998/namespace'
           default:
             return ns[prefix]
         }
@@ -57,8 +59,21 @@ const reader = {
         return null
       } else {
         var node = null
+        var uris = []
         while (node = result.iterateNext()) {
           console.log(node.value)
+          // get skos Concept
+          console.log('//skos:Concept[rdf:about="' + node.value + '"]/skos:prefLabel')
+          var concept = root.evaluate("//skos:Concept[@rdf:about='" + node.value + "']/skos:prefLabel[@xml:lang='fr']", root, nsResolver, XPathResult.ANY_TYPE, null);
+          console.log(concept)
+          var label = concept.iterateNext()
+          while (label) {
+            console.log(label.innerHTML)
+            label = concept.iterateNext()
+          }
+          
+          // concept.iterateNext()
+          // console.log(concept)
         }
       }
       return
