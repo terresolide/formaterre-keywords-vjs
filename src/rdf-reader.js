@@ -20,40 +20,8 @@ const reader = {
       
      
     },
-    extract (str) {
-      var parser = new DOMParser()
-      var root = parser.parseFromString(str, 'text/xml')
-      var attributes = root.children[0].attributes
-      var ns = {rdf: null, skos: null}
-      for (var i in attributes) {
-        if (typeof attributes[i] != 'object') {
-          continue
-        }
-        var link = attributes[i].value
-        var name = attributes[i].localName
-        if (link.startsWith('http://www.w3.org/1999/02/22-rdf-syntax-ns')) {
-          ns.rdf = link
-        } else if (link.startsWith('http://www.w3.org/2004/02/skos/core')) {
-          ns.skos =  link
-        } else {
-          ns[name] = link
-        }
-
-      } 
-      var nsResolver = function (prefix) {
-        switch(prefix) {
-          case 'rdf':
-            return ns.rdf
-          case 'skos':
-            return ns.skos
-          case 'xml':
-            return 'http://www.w3.org/XML/1998/namespace'
-          default:
-            return ns[prefix]
-        }
-      }
-      // search hasTopConcept
-      var result = root.evaluate('//skos:hasTopConcept/@rdf:resource', root, nsResolver, XPathResult.ANY_TYPE, null)
+    extractTopOfConcept (root, nsResolver) {
+       var result = root.evaluate('//skos:hasTopConcept/@rdf:resource', root, nsResolver, XPathResult.ANY_TYPE, null)
       console.log(result)
       if (result.resultType !== XPathResult.UNORDERED_NODE_ITERATOR_TYPE && result.resultType !== XPathResult.ORDERED_NODE_ITERATOR_TYPE) {
         return null
@@ -61,22 +29,46 @@ const reader = {
         var node = null
         var uris = []
         while (node = result.iterateNext()) {
-          console.log(node.value)
-          // get skos Concept
-          console.log('//skos:Concept[rdf:about="' + node.value + '"]/skos:prefLabel')
-          var concept = root.evaluate("//skos:Concept[@rdf:about='" + node.value + "']/skos:prefLabel[@xml:lang='fr']", root, nsResolver, XPathResult.ANY_TYPE, null);
-          console.log(concept)
-          var label = concept.iterateNext()
-          while (label) {
-            console.log(label.innerHTML)
-            label = concept.iterateNext()
+          // get skos Concept by uri
+          var concepts = root.evaluate("//skos:Concept[@rdf:about='" + node.value + "']", root, nsResolver, XPathResult.ANY_TYPE, null);
+          var concept = concepts.iterateNext()
+          var item = {
+            uri: node.value,
+            values: {},
+            narrowers: []
           }
+          
+          while (concept) {
+           
+            var labels = root.evaluate('./skos:prefLabel[@xml:lang="fr" or @xml:lang="en"]', concept, nsResolver, XPathResult.ANY_TYPE, null)
+            var label = labels.iterateNext()
+            while(label) {
+              var lang = label.getAttribute('xml:lang')
+              item.values[lang] = label.innerHTML
+              label = labels.iterateNext()
+            }
+            item.value = item.values.fr || item.values.en
+
+            var narrowers = root.evaluate('./skos:narrower/@rdf:resource', concept, nsResolver, XPathResult.ANY_TYPE, null)
+
+            var narrower = narrowers.iterateNext()
+            console.log(narrower)
+            while (narrower) {
+              item.narrowers.push(narrower.nodeValue)
+              narrower = narrowers.iterateNext()
+            }
+             concept = concepts.iterateNext()
+          }
+          uris.push(item)
           
           // concept.iterateNext()
           // console.log(concept)
         }
+        console.log(uris)
+        return uris
       }
-      return
+    },
+    extractConceptDescription (root, ns, nsResolver) {
       var  result = root.evaluate('//rdf:Description[skos:prefLabel and rdf:type/@rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"]|//skos:Concept[skos:prefLabel]',root, nsResolver, XPathResult.ANY_TYPE, null)
       var node = null
       var kws = []
@@ -129,11 +121,53 @@ const reader = {
         if (broader.stringValue) {
           kws[findIndex].broader = broader.stringValue
         }
+      }
+      return kws
+    },
+    extract (str) {
+      var parser = new DOMParser()
+      var root = parser.parseFromString(str, 'text/xml')
+      var attributes = root.children[0].attributes
+      var ns = {rdf: null, skos: null}
+      for (var i in attributes) {
+        if (typeof attributes[i] != 'object') {
+          continue
+        }
+        var link = attributes[i].value
+        var name = attributes[i].localName
+        if (link.startsWith('http://www.w3.org/1999/02/22-rdf-syntax-ns')) {
+          ns.rdf = link
+        } else if (link.startsWith('http://www.w3.org/2004/02/skos/core')) {
+          ns.skos =  link
+        } else {
+          ns[name] = link
+        }
+
+      } 
+      var nsResolver = function (prefix) {
+        switch(prefix) {
+          case 'rdf':
+            return ns.rdf
+          case 'skos':
+            return ns.skos
+          case 'xml':
+            return 'http://www.w3.org/XML/1998/namespace'
+          default:
+            return ns[prefix]
+        }
+      }
+      // search hasTopConcept
+      var kws = this.extractTopOfConcept(root, nsResolver)
+      
+      if (!kws || kws.length === 0) {
+        kws = this.extractConceptDescription(root, ns, nsResolver)
+      }
+      
         // order hierachical keywords
         
 
         // console.log(labelEN)
-      }
+      
        kws.sort((a, b) => {
         if (a.value > b.value) {
           return 1
