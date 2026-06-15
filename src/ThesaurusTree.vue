@@ -6,7 +6,7 @@
         <template v-if="item.items && item.items.length > 0">
             <span class="mini-button expand" @click="toggleExpand($event)">-</span>
             <span class="subtree">
-              <thesaurus-tree :items="item.items" :thesaurus="thesaurus" :selected="selected" @add="add" @remove="remove"></thesaurus-tree>
+              <thesaurus-tree :items="item.items"  :selected="selected" @add="add" @remove="remove"></thesaurus-tree>
             </span>
         </template>
     </div>
@@ -19,6 +19,7 @@ export default {
     name: 'ThesaurusTree',
     components: {ThesaurusTree},
     props: {
+        
         selected: {
             type:Array,
             default: () => []
@@ -41,8 +42,8 @@ export default {
       
             this.$emit('add', item)
         },
-        remove (thesaurus, item) {
-            this.$emit('remove', thesaurus, item)
+        remove (item) {
+            this.$emit('remove', item)
         },
         isChecked (item) {
             var find = this.selected.find(x => x.uri === item.uri)
@@ -52,7 +53,7 @@ export default {
         toggle (item) {
            if (this.isChecked(item)) {
                 console.log('remove')
-                this.remove(this.thesaurus, item)
+                this.remove( item)
            } else {
                 console.log('add')
                 this.add(item)

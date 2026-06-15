@@ -19,7 +19,9 @@
             <h3>Mots-clés de thésaurus</h3>
             <div v-for="list, key in vocabularies" ><label>{{ types[key].name }}</label>
                 <div v-for="th in list" class="sublist" v-if="listed.indexOf(th.key) < 0">
-                    <thesaurus-component :thesaurus="th" :geonetwork="geonetwork" @add="addResult" @remove="remove"></thesaurus-component>
+                    <template v-if="renderComponent">
+                        <thesaurus-component :thesaurus="th" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" @add="addResult" @remove="remove"></thesaurus-component>
+                    </template>
                     <!-- <h4 :id="th.key.replaceAll(/\.|\-/g, '')">{{ th.title }} <button @click="load(th, th.key)">Afficher</button></h4>
                     <div v-if="renderComponent" class="thesaurus">
                         <span @click="closeThesaurus(th.key.replaceAll(/\.|\-/g, ''))" class="mini-button close">&times;</span>
@@ -102,7 +104,7 @@ export default {
             key: 0,
             vocabularies: {},
             checkVocabularies: [],
-           // renderComponent: true,
+            renderComponent: true,
             types: {
                 discipline: {
                     name: 'Discipline',
@@ -300,10 +302,10 @@ export default {
         },
         update () {
             this.$forceUpdate()
-            this.renderComponent = false
-            this.$nextTick(() => {
-                this.renderComponent = true
-            })
+            // this.renderComponent = false
+            // this.$nextTick(() => {
+            //     this.renderComponent = true
+            // })
             
         }
     }

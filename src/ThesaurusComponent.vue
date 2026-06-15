@@ -35,6 +35,14 @@
                 default: () => []
             }
         },
+        watch: {
+            selected (newvalue) {
+                this.renderComponent = false
+                this.$nextTick(() => {
+                    this.renderComponent = true
+                })
+            }
+        },
         data () {
             return {
                 renderComponent: false,
@@ -45,8 +53,10 @@
             add (item) {
                 this.$emit('add', item)
             },
-            remove (thesaurus, item) {
-                this.$emit('remove', thesaurus, item)
+            remove ( item) {
+                console.log(this.thesaurus)
+                console.log(item)
+                this.$emit('remove', item.vocab, item)
             },
             close () {
                 this.renderComponent = false
