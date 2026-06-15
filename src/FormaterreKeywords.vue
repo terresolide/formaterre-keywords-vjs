@@ -19,14 +19,15 @@
             <h3>Mots-clés de thésaurus</h3>
             <div v-for="list, key in vocabularies" ><label>{{ types[key].name }}</label>
                 <div v-for="th in list" class="sublist" v-if="listed.indexOf(th.key) < 0">
-                    <h4 :id="th.key.replaceAll(/\.|\-/g, '')">{{ th.title }} <button @click="load(th)">Afficher</button></h4>
+                    <thesaurus-component :thesaurus="th" :geonetwork="geonetwork" @add="addResult" @remove="remove"></thesaurus-component>
+                    <!-- <h4 :id="th.key.replaceAll(/\.|\-/g, '')">{{ th.title }} <button @click="load(th, th.key)">Afficher</button></h4>
                     <div v-if="renderComponent" class="thesaurus">
                         <span @click="closeThesaurus(th.key.replaceAll(/\.|\-/g, ''))" class="mini-button close">&times;</span>
                         <h4>{{ th.title }}</h4>
                         <div>
                             <thesaurus-tree :key="key" :thesaurus="th.key" :items="th.items" :selected="value.thesaurus[th.key]" @add="addResult" @remove="remove"></thesaurus-tree>
                         </div>
-                    </div>
+                    </div> -->
                     <div>
                         <div v-if="value.thesaurus[th.key]" class="list-keyword">
                             <div v-for="item in value.thesaurus[th.key]" class="keyword" >
@@ -56,12 +57,12 @@
 </template>
 <script>
 import KeywordSearch from './KeywordSearch.vue';
-import ThesaurusTree from './ThesaurusTree.vue'
-import reader from './rdf-reader.js'
+import ThesaurusComponent from './ThesaurusComponent.vue'
+import Reader from './rdf-reader.js'
 
 export default {
     name: 'FormaterreKeywords',
-    components: {KeywordSearch, ThesaurusTree},
+    components: {KeywordSearch, ThesaurusComponent},
     props: {
         value: {
             type: Object,
@@ -101,7 +102,7 @@ export default {
             key: 0,
             vocabularies: {},
             checkVocabularies: [],
-            renderComponent: true,
+           // renderComponent: true,
             types: {
                 discipline: {
                     name: 'Discipline',
@@ -181,10 +182,7 @@ export default {
             
 
         },
-        closeThesaurus (id) {
-            var node = this.$el.querySelector('#' + id)
-            node.classList.remove('expand')
-        },
+        
         getVocabulariesGeonetwork () {
             fetch(this.geonetwork + '/srv/' + this.locale + '/thesaurus?_content_type=json')
             .then(resp => resp.json())
@@ -195,12 +193,13 @@ export default {
         },
         getListed () {
             var url = this.geonetwork + '/srv/api/registries/vocabularies/' 
-            console.log(reader)
+            // console.log(reader)
             
             var self = this
             this.listed.forEach(function (name) {
                 var type = name.split('.')[1]
                 var index = self.vocabularies[type].findIndex(x => x.key === name)
+                var reader = new Reader(url, name)
                 reader.load(url, name)
                 .then(th => {
         
@@ -220,30 +219,31 @@ export default {
             }
             return find
         },
-        load(thesaurus) {
+        // load(thesaurus) {
             
-            var node = this.$el.querySelector('#' + thesaurus.key.replaceAll(/\.|\-/g, ''))
+        //     var node = this.$el.querySelector('#' + thesaurus.key.replaceAll(/\.|\-/g, ''))
            
-            var index = this.vocabularies[thesaurus.dname].findIndex(x => x.key === thesaurus.key)
+        //     var index = this.vocabularies[thesaurus.dname].findIndex(x => x.key === thesaurus.key)
                 
-            if (this.vocabularies[thesaurus.dname][index].items) {
-                // close all expand
-                var nodes = this.$el.querySelectorAll('.expand')
-                nodes.forEach(function (item) {
-                    item.classList.remove('expand')
-                })
-                node.classList.add('expand')
-                return
-            } 
-            var url = this.geonetwork + '/srv/api/registries/vocabularies/'
-            var self = this
-            reader.load(url,  thesaurus.key)
-            .then (items => {
-                self.vocabularies[thesaurus.dname][index].items = items
-                node.classList.add('expand')
-                self.$forceUpdate()
-            })
-        },
+        //     if (this.vocabularies[thesaurus.dname][index].items) {
+        //         // close all expand
+        //         var nodes = this.$el.querySelectorAll('.expand')
+        //         nodes.forEach(function (item) {
+        //             item.classList.remove('expand')
+        //         })
+        //         node.classList.add('expand')
+        //         return
+        //     } 
+        //     var url = this.geonetwork + '/srv/api/registries/vocabularies/'
+        //     var self = this
+        //     var reader = new Reader(url, thesaurus.key)
+        //     reader.load(url,  thesaurus.key)
+        //     .then (items => {
+        //         self.vocabularies[thesaurus.dname][index].items = items
+        //         node.classList.add('expand')
+        //         self.$forceUpdate()
+        //     })
+        // },
         toggle (vocab, item) {
             if (this.isChecked(vocab, item.uri)) {
                 this.remove(vocab, {uri: item.uri})
@@ -320,6 +320,21 @@ span.mini-button {
 span.mini-button:hover {
     border-color:darkgrey;
 }
+.close {
+  position:absolute;
+  top:-5px;
+  right:1px;
+  font-size:1.2rem;
+  font-weight:700;
+  color: darkred;
+  vertical-align:top;
+}
+.mini-button.close {
+    top:1px;
+}
+.close:hover {
+   color: red;
+}
 </style>
 <style scoped>
 label {
@@ -370,21 +385,7 @@ label {
 .list-keywords {
   margin-left:15px;
 }
-.close {
-  position:absolute;
-  top:-5px;
-  right:1px;
-  font-size:1.2rem;
-  font-weight:700;
-  color: darkred;
-  vertical-align:top;
-}
-.mini-button.close {
-    top:1px;
-}
-.close:hover {
-   color: red;
-}
+
 .thesaurus {
     position:fixed;
     display: none;
