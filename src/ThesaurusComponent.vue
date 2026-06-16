@@ -3,6 +3,7 @@
 <span>
     <template v-if="thesaurus">
         <h4 v-if="format !== 'checkbox'">{{ thesaurus.title }} <button  @click="load()">Afficher +</button></h4>
+
         <div v-if="renderComponent" :class="{thesaurus: format!= 'checkbox'}">
             <span v-if="format !== 'checkbox'"  @click="close()" class="mini-button close">&times;</span>
             <h4>{{ thesaurus.title }}</h4>
@@ -11,15 +12,8 @@
             </div>
             
         </div>
-        <div>
-            <div v-if="format !== 'checkbox' && selectedLength > 0" class="list-keyword">
-                <div v-for="item in selected" class="keyword" >
-                    <span class="close" @click="remove(item)">&times;</span>
-                    {{ item.values.fre }} | {{ item.values.eng }}
-                </div>
-            </div>
-        </div>
-    </template>
+        </template>
+
 </span> 
 </template>
 <script>
@@ -50,9 +44,10 @@
         },
         watch: {
             selected (newvalue) {
-                this.renderComponent = false
+                this.renderComponent = true
+                // memoriser le scroll?
                 this.$nextTick(() => {
-                    this.$forceUpdate()
+                    this.renderComponent = false
                 })
             }
         },
