@@ -3,21 +3,27 @@
         <template v-if="listed.length > 0">
             <h2>Principale(s) classification(s)</h2>
             <div v-for="th in checkVocabularies">
-                    <thesaurus-component :thesaurus="th" format="checkbox" :selected="value.thesaurus[th.key]" 
+                    <thesaurus-component :thesaurus="th" format="checkbox" :selected="value.thesaurus[th.key]" :change="value.thesaurus[th.key] ? value.thesaurus[th.key].length : 0"
                     :geonetwork="geonetwork" @add="addResult" @remove="remove"></thesaurus-component>
             </div>
         </template>
-        <h2>Autres mots-clés</h2>
-         <keyword-search :geonetwork="geonetwork" :types="types" :listed="listed" :keywords="value"
+        <h2>Mots-clés recommandés</h2>
+         <keyword-search :geonetwork="geonetwork" :types="types" :listed="recommanded" :keywords="value"
          :excluded="excluded" @add="add" @remove="remove"></keyword-search>
        
+               <div v-for="th in recVocabularies" class="sublist" >
+     
+                        <thesaurus-component :thesaurus="th" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" 
+                        :change="value.thesaurus[th.key] ? value.thesaurus[th.key].length : 0" @add="addResult" @remove="remove"></thesaurus-component>
+                </div>
+        <h2>Autres Mots-clés</h2>
         <div class="voclist">
             <h3>Mots-clés de thésaurus</h3>
             <div v-for="list, key in vocabularies" ><label>{{ types[key].name }}</label>
                 <div v-for="th in list" class="sublist" v-if="listed.indexOf(th.key) < 0">
-                    <template v-if="renderComponent">
+            
                         <thesaurus-component :thesaurus="th" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" @add="addResult" @remove="remove"></thesaurus-component>
-                    </template>
+               
                    
                     <div>
                         <div v-if="value.thesaurus[th.key]" class="list-keyword">
@@ -80,7 +86,7 @@ export default {
         },
         recommanded: {
             type: Array,
-            default: () => []
+            default: () => ['external.discipline.formater-discipline', 'external.theme.formater-foi-gn', 'external.platform.formater-platform-gn']
         },
         excluded: {
             type: Array,
@@ -92,6 +98,8 @@ export default {
             key: 0,
             vocabularies: {},
             checkVocabularies: [],
+            recVocabularies: [],
+            otherVocabularies: [],
             renderComponent: true,
             types: {
                 discipline: {
@@ -178,7 +186,7 @@ export default {
             .then(resp => resp.json())
             .then(json => {
                 this.treatmentVocabulariesGeonetwork(json)
-                this.getListed()
+                // this.getListed()
             })
         },
         getListed () {
@@ -270,12 +278,18 @@ export default {
             if (json[0]) {
                 json[0].forEach(function (th) {
                     if (self.excluded.indexOf(th.key) < 0) {
+                        if (self.listed.indexOf(th.key) >= 0) {
+                            self.checkVocabularies.push(th)
+                            return
+                        }
+                        if (self.recommanded.indexOf(th.key) >= 0) {
+                            self.recVocabularies.push(th)
+                            return
+                        }
                         if (!vocabularies[th.dname]) {
                             vocabularies[th.dname] = []
                         }
-                        if (self.listed.indexOf(th.key) > 0) {x.getAttribute('xml:lang')
-                            th.listed = true
-                        }
+                       
                         vocabularies[th.dname].push(th)
                     }
                 })
@@ -319,6 +333,20 @@ span.mini-button:hover {
 .close:hover {
    color: red;
 }
+.keyword {
+  display:inline-block;
+  position:relative;
+  margin: 3px 10px 3px 0;
+  padding: 3px  14px 3px 6px;
+  border-radius: 4px;
+  background: #ddd;
+  box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+.list-keywords {
+  margin-left:15px;
+}
+
 </style>
 <style scoped>
 label {
@@ -326,7 +354,7 @@ label {
     display:block;
     margin: 10px 0;
 }
-.check-listed {
+/*.check-listed {
     display:inline-block;
     min-width:250px;
     width:250px;
@@ -345,7 +373,7 @@ label {
     display:inline-block;
     vertical-align:top;
     width:calc(100% - 30px);
-}
+}*/
 .sublist {
     position:relative;
     margin-left: 10px;
@@ -356,21 +384,8 @@ label {
     padding:0px 10px;
     vertical-align:top;
 }
-.keyword {
-  display:inline-block;
-  position:relative;
-  margin: 3px 10px 3px 0;
-  padding: 3px  14px 3px 6px;
-  border-radius: 4px;
-  background: #ddd;
-  box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.4);
-  cursor: pointer;
-}
-.list-keywords {
-  margin-left:15px;
-}
 
-.thesaurus {
+/** .thesaurus {
     position:fixed;
     display: none;
     max-width: 900px;
@@ -390,5 +405,5 @@ h4.expand + div.thesaurus {
     padding-right:15px;
     max-height:calc(100vh - 160px);
    overflow-y:scroll; 
-}
+}*/
 </style>

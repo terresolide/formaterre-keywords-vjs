@@ -9,6 +9,15 @@
             <div>
                 <thesaurus-tree  :thesaurus="thesaurus.key" :items="items" :reader="reader" :selected="selected" @add="add" @remove="remove" @search="getItems"></thesaurus-tree>
             </div>
+            
+        </div>
+        <div>
+            <div v-if="format !== 'checkbox' && selectedLength > 0" class="list-keyword">
+                <div v-for="item in selected" class="keyword" >
+                    <span class="close" @click="remove(item)">&times;</span>
+                    {{ item.values.fre }} | {{ item.values.eng }}
+                </div>
+            </div>
         </div>
     </template>
 </span> 
@@ -43,7 +52,7 @@
             selected (newvalue) {
                 this.renderComponent = false
                 this.$nextTick(() => {
-                    this.renderComponent = true
+                    this.$forceUpdate()
                 })
             }
         },
@@ -55,7 +64,7 @@
         },
         mounted () {
             if (this.format === 'checkbox') {
-                this.load()
+                this.load() 
             }
         },
         methods: {
@@ -82,7 +91,7 @@
                         items[pos].items = this.reader.getItems(narrowers)
                     }
                 }
-                return itemsss
+                return items
             },
             load() {
                 if (this.items.length > 0) {

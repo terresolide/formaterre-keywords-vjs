@@ -155,7 +155,9 @@ export default {
     },
     requestGeonetwork (query, lang) {
       return new Promise((resolve, reject) => {
+        var thesauri = this.listed.map(x => 'thesaurus=' + x)
         var url = this.geonetwork + '/srv/api/registries/vocabularies/search?q=' + query 
+        url += '&' + thesauri.join('&')
         url += '&lang=' + lang + '&rows=1000&type=CONTAINS&sort=ASC&pLang=fre&pLang=eng'
         var promise2 = fetch(url, {headers: {accept: 'application/json'}})
         .then(resp => resp.json())
