@@ -3,7 +3,7 @@
 <span>
     <template v-if="thesaurus">
         <h4 v-if="format !== 'checkbox'">{{ thesaurus.title }} <button  @click="load()">Afficher +</button></h4>
-
+        {{ change }}
         <div v-if="renderComponent" :class="{thesaurus: format!= 'checkbox'}">
             <span v-if="format !== 'checkbox'"  @click="close()" class="mini-button close">&times;</span>
             <h4>{{ thesaurus.title }}</h4>
@@ -37,6 +37,10 @@
                 type: Array,
                 default: () => []
             },
+            change: {
+                type: Number,
+                default: 0
+            },
             format: {
                 type: String,
                 default: 'hide'
@@ -44,11 +48,11 @@
         },
         watch: {
             selected (newvalue) {
-                this.renderComponent = true
-                // memoriser le scroll?
-                this.$nextTick(() => {
-                    this.renderComponent = false
-                })
+                // this.hidden = true
+                // // memoriser le scroll?
+                // this.$nextTick(() => {
+                //     this.hidden = false
+                // })
             }
         },
         data () {

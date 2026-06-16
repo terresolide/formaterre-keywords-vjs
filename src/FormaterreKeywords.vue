@@ -12,9 +12,17 @@
          :excluded="excluded" @add="add" @remove="remove"></keyword-search>
        
                <div v-for="th in recVocabularies" class="sublist" >
-     
-                        <thesaurus-component :thesaurus="th" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" 
-                        :change="value.thesaurus[th.key] ? value.thesaurus[th.key].length : 0" @add="addResult" @remove="remove"></thesaurus-component>
+     {{ renderComponent[th.key] }}
+                        <thesaurus-component :change="renderComponent[th.key]" :thesaurus="th" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" 
+                       @add="addResult" @remove="remove"></thesaurus-component>
+                       <div>
+                        <div v-if="value.thesaurus[th.key]" class="list-keyword">
+                            <div v-for="item in value.thesaurus[th.key]" class="keyword" >
+                                <span class="close" @click="remove(th.key, item)">&times;</span>
+                                {{ item.values.fre }} | {{ item.values.eng }}
+                            </div>
+                        </div>
+                    </div>
                 </div>
         <h2>Autres Mots-clés</h2>
         <div class="voclist">
@@ -100,7 +108,7 @@ export default {
             checkVocabularies: [],
             recVocabularies: [],
             otherVocabularies: [],
-            renderComponent: true,
+            renderComponent: {},
             types: {
                 discipline: {
                     name: 'Discipline',
@@ -158,7 +166,7 @@ export default {
             } else {
                 this.addFree(keyword)
             }
-            this.update()
+            this.update(keyword.vocab)
         },
         addFree (keyword) {
             var free = this.value.free
@@ -211,31 +219,7 @@ export default {
             }
             return find
         },
-        // load(thesaurus) {
-            
-        //     var node = this.$el.querySelector('#' + thesaurus.key.replaceAll(/\.|\-/g, ''))
-           
-        //     var index = this.vocabularies[thesaurus.dname].findIndex(x => x.key === thesaurus.key)
-                
-        //     if (this.vocabularies[thesaurus.dname][index].items) {
-        //         // close all expand
-        //         var nodes = this.$el.querySelectorAll('.expand')
-        //         nodes.forEach(function (item) {
-        //             item.classList.remove('expand')
-        //         })
-        //         node.classList.add('expand')
-        //         return
-        //     } 
-        //     var url = this.geonetwork + '/srv/api/registries/vocabularies/'
-        //     var self = this
-        //     var reader = new Reader(url, thesaurus.key)
-        //     reader.load(url,  thesaurus.key)
-        //     .then (items => {
-        //         self.vocabularies[thesaurus.dname][index].items = items
-        //         node.classList.add('expand')
-        //         self.$forceUpdate()
-        //     })
-        // },
+        
         toggle (vocab, item) {
             if (this.isChecked(vocab, item.uri)) {
                 this.remove(vocab, {uri: item.uri})
@@ -254,7 +238,7 @@ export default {
                 thesaurus[vocab] = newvocab
                 // var keywords = Object.assign(this.keywords, {thesaurus: thesaurus})
                     this.$emit('input', {...this.value, thesaurus: this.value.thesaurus})
-                    this.update()
+                    this.update(vocab)
                     // console.log(vocab)
                     // var node = this.$el.querySelector('#' + vocab.replaceAll(/\.|\-/g, '') + ' + div > thesaurus-tree')
                     // console.log(node)
@@ -296,7 +280,17 @@ export default {
             }
             this.vocabularies = vocabularies
         },
-        update () {
+        update (vocab) {
+            console.log(vocab)
+            var self = this
+           // setTimeout(function () {
+                if (!this.renderComponent[vocab]) {
+                    this.renderComponent[vocab] = 0
+                } else {
+                    this.$set(this.renderComponent,vocab, this.renderComponent[vocab] + 1) 
+                }
+            console.log(this.renderComponent)
+          //  }, 10)
             this.$forceUpdate()
             // this.renderComponent = false
             // this.$nextTick(() => {
