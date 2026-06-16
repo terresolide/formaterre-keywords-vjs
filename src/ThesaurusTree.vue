@@ -6,8 +6,12 @@
         <template v-if="item.items && item.items.length > 0">
             <span class="mini-button expand" @click="toggleExpand($event)">-</span>
             <span class="subtree">
-              <thesaurus-tree :items="item.items"  :selected="selected" @add="add" @remove="remove"></thesaurus-tree>
+              
+              <thesaurus-tree :items="item.items"  :uri="item.uri" :selected="selected" @add="add" @remove="remove" @search="search"></thesaurus-tree>
             </span>
+        </template>
+        <template v-else-if="item.narrowers && item.narrowers.length > 0">
+            <span class="mini-button expand" @click="getItems(item)">+</span>
         </template>
     </div>
     </span>
@@ -19,7 +23,10 @@ export default {
     name: 'ThesaurusTree',
     components: {ThesaurusTree},
     props: {
-        
+        uri: {
+            type: String,
+            default: null
+        },
         selected: {
             type:Array,
             default: () => []
@@ -27,7 +34,7 @@ export default {
         items: {
             type: Array,
             default: () => []
-        }
+        } 
     },
     watch: {
         selected () {
@@ -35,7 +42,7 @@ export default {
         }
     },
     created () {
-       
+        
     },
     methods: {
         add (item) {
@@ -47,8 +54,22 @@ export default {
         },
         isChecked (item) {
             var find = this.selected.find(x => x.uri === item.uri)
-            console.log(find)
             return find
+        },
+        search (path, item) {
+            if (this.uri) {
+                path.unshift(this.uri)
+            }
+            this.$emit('search', path, item)
+          
+           
+        },
+        getItems (item) {
+            this.search([item.uri], item)
+            var self = this
+            setTimeout(function () {
+                self.$forceUpdate()
+            }, 0)
         },
         toggle (item) {
            if (this.isChecked(item)) {
@@ -60,7 +81,6 @@ export default {
            }
         },
         toggleExpand (event) {
-            console.log(event)
             if (event.target.classList.contains('expand')) {
                 event.target.classList.remove('expand')
                 event.target.innerHTML = '+'

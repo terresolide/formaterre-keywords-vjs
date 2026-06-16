@@ -35,22 +35,17 @@ const Reader = class Reader {
       
      
     }
-    getItems (root, uri) {
-      var concepts = root.evaluate("//skos:Concept[@rdf:about='" + uri + "']", root, nsResolver, XPathResult.ANY_TYPE, null);
-      var concept = null
-      var uris = []
-      
-      while (concept.iterateNext()) {
-
-        var narrowers = root.evaluate('./skos:narrower/@rdf:resource', concept, nsResolver, XPathResult.ANY_TYPE, null)
-
-        var narrower = narrowers.iterateNext()
-        console.log(narrower)
-        while (narrower.iterateNext()) {
-          uris.push(narrower.nodeValue)
+    getItems (uris) {
+      var items = []
+      var self = this
+      uris.forEach(function (uri) {
+        var item = self.getItem(self.root, uri, self.nsResolver)
+        if (item) {
+          items.push(item)
         }
-      }
-      return uris
+      })
+      
+      return items
       // get Items
 
     }

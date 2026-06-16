@@ -7,7 +7,7 @@
             <span v-if="format !== 'checkbox'"  @click="close()" class="mini-button close">&times;</span>
             <h4>{{ thesaurus.title }}</h4>
             <div>
-                <thesaurus-tree  :thesaurus="thesaurus.key" :items="items" :reader="reader" :selected="selected" @add="add" @remove="remove" @getitems="getItems"></thesaurus-tree>
+                <thesaurus-tree  :thesaurus="thesaurus.key" :items="items" :reader="reader" :selected="selected" @add="add" @remove="remove" @search="getItems"></thesaurus-tree>
             </div>
         </div>
     </template>
@@ -70,13 +70,25 @@
             close () {
                 this.renderComponent = false
             },
-            getItems (path) {
-               var index = this.items.findIndex(x => x.uri = path[0])
-               
+            getItems (path, item ) {
+               this.items = this.getChildItems(path, this.items, 0, item.narrowers)
+            },
+            getChildItems (path, items, index, narrowers) {
+                var pos = items.findIndex(x => x.uri === path[index] )
+                if (pos >= 0) {
+                    if (path.length - 1 > index) {
+                        items[pos].items = this.getChildItems(path, items[pos].items, index + 1, narrowers)
+                    } else if (index === path.length - 1) {
+                        items[pos].items = this.reader.getItems(narrowers)
+                    }
+                }
+                return itemsss
             },
             load() {
-        
-                
+                if (this.items.length > 0) {
+                    this.renderComponent = true
+                    return
+                }
                 var url = this.geonetwork + '/srv/api/registries/vocabularies/'
                 var self = this
                 this.reader = new Reader(url, this.thesaurus.key)
