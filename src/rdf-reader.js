@@ -102,46 +102,16 @@ const Reader = class Reader {
           // get skos Concept by uri
           var item = this.getItem(root, node.value, nsResolver)
           uris.push(item)
-          // var concepts = root.evaluate("//skos:Concept[@rdf:about='" + node.value + "']", root, nsResolver, XPathResult.ANY_TYPE, null);
-          // var concept = null
-         
-          
-          // while (concept = concepts.iterateNext()) {
-            
-            // var labels = root.evaluate('./skos:prefLabel[@xml:lang="fr" or @xml:lang="en"]', concept, nsResolver, XPathResult.ANY_TYPE, null)
-            // var label = labels.iterateNext()
-            // while(label) {
-            //   var lang = label.getAttribute('xml:lang')
-            //   item.values[lang === 'fr' ? 'fre' : 'eng'] = label.innerHTML
-            //   label = labels.iterateNext()
-            // }
-            // item.value = item.values.fre || item.values.eng
-
-            // var count = root.evaluate('count(./skos:narrower/@rdf:resource)', concept, nsResolver, XPathResult.NUMBER_TYPE, null)
-            // console.log(count)
-            // item.narrowers = item.narrowers + count.numberValue
-            // var narrower = narrowers.iterateNext()
-            // console.log(narrower)
-            // while (narrower) {
-            //   item.narrowers.push(narrower.nodeValue)
-            //   narrower = narrowers.iterateNext()
-            // }
-            //  concept = concepts.iterateNext()
-          // }
-          // uris.push(item)
-          
-          // concept.iterateNext()
-          // console.log(concept)
         }
         console.log(uris)
         return uris
       }
     }
     extractConceptDescription (root, ns, nsResolver) {
-      var  result = root.evaluate('//rdf:Description[skos:prefLabel and rdf:type/@rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"]|//skos:Concept[skos:prefLabel]',root, nsResolver, XPathResult.ANY_TYPE, null)
-      var node = null
+      var  result = root.evaluate('//rdf:Description[skos:prefLabel and not(rdf:type/@rdf:resource="http://www.w3.org/2004/02/skos/core#Collection")]|//skos:Concept[skos:prefLabel]',root, nsResolver, XPathResult.ANY_TYPE, null)
+      var node = result.iterateNext()
       var kws = []
-      while (node = result.iterateNext()) {
+      while (node) {
         var uri = node.getAttributeNS('about', ns.rdf)
         var uri = node.getAttribute('rdf:about')
         var x = null
@@ -181,6 +151,7 @@ const Reader = class Reader {
         var broader = root.evaluate('//rdf:Description[@rdf:about="' + uri + '"]/skos:broader/@rdf:resource', root, nsResolver, XPathResult.STRING_TYPE, null)
         // console.log(broader)
         if (broader.resultType !== XPathResult.STRING_TYPE) {
+           node = result.iterateNext()
           continue
         } else {
           console.log('broader = ', broader)
@@ -188,6 +159,7 @@ const Reader = class Reader {
         if (broader.stringValue) {
           kws[findIndex].broader = broader.stringValue
         }
+        node = result.iterateNext()
       }
       return kws
     }
@@ -246,7 +218,7 @@ const Reader = class Reader {
       return keywords
     }
     orderItems(kws, kw) {
-      
+      console.log(kws.length)
       if (!kw) {
         var keywords = kws.filter(x => !x.broader || typeof x.broader === undefined) 
          
@@ -256,6 +228,7 @@ const Reader = class Reader {
       for(var i=0; i < keywords.length; i ++) {
          keywords[i].items = this.orderItems(kws, keywords[i])
       }
+      console.log(keywords)
       return keywords
 
     }

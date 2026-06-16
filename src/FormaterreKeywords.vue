@@ -1,15 +1,11 @@
 <template>
     <span>
         <template v-if="listed.length > 0">
-        <h2>Principale(s) classification(s)</h2>
-        <div v-for="th in checkVocabularies">
-            <label>{{ th.title }}</label>
-            <div>
-            <span v-for="kw in th.items"  @click="toggle(th.key,  kw)" class="check-listed">
-                <input type="checkbox" :checked="isChecked(th.key, kw.uri)"/> <span>{{ kw.value }}</span>
-            </span>
+            <h2>Principale(s) classification(s)</h2>
+            <div v-for="th in checkVocabularies">
+                    <thesaurus-component :thesaurus="th" format="checkbox" :selected="value.thesaurus[th.key]" 
+                    :geonetwork="geonetwork" @add="addResult" @remove="remove"></thesaurus-component>
             </div>
-        </div>
         </template>
         <h2>Autres mots-clés</h2>
          <keyword-search :geonetwork="geonetwork" :types="types" :listed="listed" :keywords="value"
@@ -22,14 +18,7 @@
                     <template v-if="renderComponent">
                         <thesaurus-component :thesaurus="th" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" @add="addResult" @remove="remove"></thesaurus-component>
                     </template>
-                    <!-- <h4 :id="th.key.replaceAll(/\.|\-/g, '')">{{ th.title }} <button @click="load(th, th.key)">Afficher</button></h4>
-                    <div v-if="renderComponent" class="thesaurus">
-                        <span @click="closeThesaurus(th.key.replaceAll(/\.|\-/g, ''))" class="mini-button close">&times;</span>
-                        <h4>{{ th.title }}</h4>
-                        <div>
-                            <thesaurus-tree :key="key" :thesaurus="th.key" :items="th.items" :selected="value.thesaurus[th.key]" @add="addResult" @remove="remove"></thesaurus-tree>
-                        </div>
-                    </div> -->
+                   
                     <div>
                         <div v-if="value.thesaurus[th.key]" class="list-keyword">
                             <div v-for="item in value.thesaurus[th.key]" class="keyword" >
@@ -60,7 +49,6 @@
 <script>
 import KeywordSearch from './KeywordSearch.vue';
 import ThesaurusComponent from './ThesaurusComponent.vue'
-import Reader from './rdf-reader.js'
 
 export default {
     name: 'FormaterreKeywords',
@@ -201,13 +189,7 @@ export default {
             this.listed.forEach(function (name) {
                 var type = name.split('.')[1]
                 var index = self.vocabularies[type].findIndex(x => x.key === name)
-                var reader = new Reader(url, name)
-                reader.load(url, name)
-                .then(th => {
-        
-                    self.vocabularies[type][index].items = th
-                    self.checkVocabularies.push(self.vocabularies[type][index])
-                })
+                self.checkVocabularies.push(self.vocabularies[type][index])
             })
             
         },

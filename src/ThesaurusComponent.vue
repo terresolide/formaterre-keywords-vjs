@@ -2,12 +2,12 @@
 <template>
 <span>
     <template v-if="thesaurus">
-        <h4>{{ thesaurus.title }} <button @click="load()">Afficher +</button></h4>
-        <div v-if="renderComponent" class="thesaurus">
-            <span @click="close()" class="mini-button close">&times;</span>
+        <h4 v-if="format !== 'checkbox'">{{ thesaurus.title }} <button  @click="load()">Afficher +</button></h4>
+        <div v-if="renderComponent" :class="{thesaurus: format!= 'checkbox'}">
+            <span v-if="format !== 'checkbox'"  @click="close()" class="mini-button close">&times;</span>
             <h4>{{ thesaurus.title }}</h4>
             <div>
-                <thesaurus-tree  :thesaurus="thesaurus.key" :items="items" :reader="reader" :selected="selected" @add="add" @remove="remove"></thesaurus-tree>
+                <thesaurus-tree  :thesaurus="thesaurus.key" :items="items" :reader="reader" :selected="selected" @add="add" @remove="remove" @getitems="getItems"></thesaurus-tree>
             </div>
         </div>
     </template>
@@ -33,6 +33,10 @@
             selected: {
                 type: Array,
                 default: () => []
+            },
+            format: {
+                type: String,
+                default: 'hide'
             }
         },
         watch: {
@@ -49,6 +53,11 @@
                 reader: null,
                 items: []}
         },
+        mounted () {
+            if (this.format === 'checkbox') {
+                this.load()
+            }
+        },
         methods: {
             add (item) {
                 this.$emit('add', item)
@@ -60,6 +69,10 @@
             },
             close () {
                 this.renderComponent = false
+            },
+            getItems (path) {
+               var index = this.items.findIndex(x => x.uri = path[0])
+               
             },
             load() {
         
