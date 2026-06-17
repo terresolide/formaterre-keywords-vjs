@@ -1,8 +1,7 @@
 <template>
     <span>
         <template v-if="listed.length > 0">
-            <h2>Principale classification</h2>
-            <div>Mots-clés obligatoires</div>
+            <h3>Principale classification</h3>
             <div class="voclist">
                 <div v-for="th in checkVocabularies">
                         <thesaurus-component :thesaurus="th" format="checkbox" :selected="value.thesaurus[th.key]" :change="value.thesaurus[th.key] ? value.thesaurus[th.key].length : 0"
@@ -12,41 +11,42 @@
            
         </template>
          <div class="voclist">
-                <div v-for="list, type in value.free"  class="">
-        
-                <div class="list-keyword">
-                    <div v-for="item, index in list" class="keyword" >
-                        <span class="close" @click="remove(null, item, index)">&times;</span>
-                        {{ item.fr }} | {{ item.en }}<br />
-                        ({{ types[type].name }})
-                    </div>
+            <span v-for="list, thesaurus in value.thesaurus" class="list-keyword">
+                <div v-for="item, index in list" class="keyword"  :class="{recommanded: vocname[thesaurus].recommanded, checked: vocname[thesaurus].checked}">
+                    <span class="close" @click="remove(thesaurus, item, index)">&times;</span>
+                    {{ item.values.fre }} | {{ item.values.eng }}<br />
+                    ({{ vocname[thesaurus].title}})
                 </div>
+            </span>
+            <div v-for="list, type in value.free"  class="list-keyword">
+    
+                <div v-for="item, index in list" class="keyword" >
+                    <span class="close" @click="remove(null, item, index)">&times;</span>
+                    {{ item.fr }} | {{ item.en }}<br />
+                    ({{ types[type].name }})
+                </div>
+        
             </div>
-            </div>
+        </div>
         <div>NOTE SUR LA RECHERCHE</div>
           <keyword-search :geonetwork="geonetwork" :types="types" :listed="searchVocabularies" :keywords="value"
          :excluded="excluded" @add="add" @remove="remove"></keyword-search>
        
-          
-                 <h2>Thésaurus recommandés</h2>
-               <div v-for="th in recVocabularies" class="sublist" >
-                        <thesaurus-component :change="renderComponent[th.key]" :thesaurus="th" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" 
-                       @add="addResult" @remove="remove"></thesaurus-component>
-                </div>
-            </div>
-        
-           
-           
-            
+    
+        <h3>Thésaurus recommandés</h3>
+        <div v-for="th in recVocabularies" class="sublist" >
+                <thesaurus-component :change="renderComponent[th.key]" :thesaurus="th" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" 
+                @add="addResult" @remove="remove"></thesaurus-component>
         </div>
-        <h2>Autres thésaurus</h2>
-        <div class="voclist">
+   
+   
+        <h3>Autres thésaurus <span @click="showOthers=!showOthers" class="mini-button">{{ showOthers ? '-' : '+' }}</span></h3>
+
+        <div v-show="showOthers" class="voclist">
             <div v-for="list, key in vocabularies" ><label>{{ types[key].name }}</label>
                 <div v-for="th in list" class="sublist" v-if="listed.indexOf(th.key) < 0">
-            
                         <thesaurus-component :thesaurus="th" :change="renderComponent[th.key]" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" @add="addResult" @remove="remove"></thesaurus-component>
                
-        
                 </div>
             
             </div>
@@ -102,8 +102,9 @@ export default {
             vocabularies: {},
             checkVocabularies: [],
             recVocabularies: [],
-            otherVocabularies: [],
+            vocname: {},
             renderComponent: {},
+            showOthers: false,
             types: {
                 discipline: {
                     name: 'Discipline',
@@ -259,16 +260,22 @@ export default {
             var self = this
             if (json[0]) {
                 json[0].forEach(function (th) {
+                   
                     if (self.excluded.indexOf(th.key) < 0) {
                         if (self.listed.indexOf(th.key) >= 0) {
+                            th.checked = true
+                            self.vocname[th.key] = th
                             self.checkVocabularies.push(th)
                             return
                         }
                         if (self.recommanded.indexOf(th.key) >= 0) {
+                            th.recommanded = true
+                            self.vocname[th.key] = th
                             self.recVocabularies.push(th)
                             return
                         }
                         others.push(th)
+                        self.vocname[th.key] = th
                         if (!vocabularies[th.dname]) {
                             vocabularies[th.dname] = []
                         }
@@ -338,6 +345,13 @@ span.mini-button:hover {
   box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.4);
   cursor: pointer;
 }
+.keyword.recommanded {
+    background: #e2c6c6;
+}
+.keyword.checked {
+    background: #8b0000;
+    color:white;
+}
 .list-keywords {
   margin-left:15px;
 }
@@ -348,6 +362,9 @@ label {
     font-weight:700;
     display:block;
     margin: 10px 0;
+}
+h3 {
+    margin-bottom:0;
 }
 /*.check-listed {
     display:inline-block;

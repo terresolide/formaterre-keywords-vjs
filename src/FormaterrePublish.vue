@@ -1,7 +1,7 @@
 
 <template>
     <span>
-        {{ keywords }}
+     
 
     <formaterre-keywords lang="en" v-model="keywords"></formaterre-keywords>
    

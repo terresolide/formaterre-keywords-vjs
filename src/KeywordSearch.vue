@@ -1,7 +1,7 @@
 <template>
   <span> 
     <div>Note explicative</div>
-    Rechercher <input v-model="query" type="text"  @focus="show=true" @keyup="search" />
+    Rechercher <input  class="search" v-model="query" type="text"   @focus="show=true" @keyup="search" />
     <div style="position:relative;">
       <div v-if="show && query.length > 2" class="tt-menu" 
         style="position: absolute; top: 0; left: 50px; z-index: 100; /*! display: none; */">
