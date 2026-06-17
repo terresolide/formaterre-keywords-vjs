@@ -23,13 +23,12 @@
                 </div>
             </div>
             </div>
-        <div>NOTE</div>
-        {{ searchVocabularies }}
+        <div>NOTE SUR LA RECHERCHE</div>
           <keyword-search :geonetwork="geonetwork" :types="types" :listed="searchVocabularies" :keywords="value"
          :excluded="excluded" @add="add" @remove="remove"></keyword-search>
        
           
-                 <h2>Mots-clés recommandés</h2>
+                 <h2>Thésaurus recommandés</h2>
                <div v-for="th in recVocabularies" class="sublist" >
                         <thesaurus-component :change="renderComponent[th.key]" :thesaurus="th" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" 
                        @add="addResult" @remove="remove"></thesaurus-component>

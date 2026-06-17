@@ -5,7 +5,8 @@
     <div style="position:relative;">
       <div v-if="show && query.length > 2" class="tt-menu" 
         style="position: absolute; top: 0; left: 50px; z-index: 100; /*! display: none; */">
-        <div v-if="results.length > 0" class="tt-dataset tt-dataset-concept">
+        <div v-if="results.length > 0 && !free" class="tt-dataset tt-dataset-concept">
+          
           <div v-for="item, index in results" @click="addResult(index)" 
           class="autocomplete-label tt-suggestion tt-selectable"       :class="{disabled: item.choose}">
             <div>
@@ -13,9 +14,13 @@
           </div>
           <div class="vocab">{{toTitle(item.vocab || item.thesaurusKey)}}</div>
         </div>
+        <div @click="setFree" class="autocomplete-label tt-suggestion tt-selectable" >AJOUTER UN MOT CLÉ LIBRE &rarr; </div>
       </div>
       <div v-else class="tt-dataset tt-dataset-concept" style="padding:5px 10px;">
-          <div>Aucun mot-clé correspondant trouvé dans les thésaurus!<br>
+          <div>
+          <template v-if="results.length === 0">
+            Aucun mot-clé correspondant trouvé dans les thésaurus!<br>
+            </template>
           Vous pouvez entrer un mot clé libre</div>
           <ul style="list-style-type: none;">
             <li><span class="lang-label">FR</span> <input type="text" v-model="kw.fr" /></li>
@@ -25,8 +30,11 @@
                   <option v-for="tp, key in types" :value="key" :title="tp.definition">{{ tp.name }}</option>
                 </select>
             </li>
+            <li><input type="checkbox" v-model="kw.thesaurus" style="margin-top:7px;vertical-align: top;"> <span style="display:inline-block;width:calc(100% - 30px)">Je souhaite qu'il soit ajouté à un thésaurus</span></li>
           </ul>
+          
           <div style="text-align:right;margin:0 10px 15px 0;">
+            <button v-if="free" @click="free=false">Annuler</button>
             <button @click="addFree">Ajouter</button>
           </div>
       </div>
@@ -72,6 +80,7 @@ export default {
       query: '',
       show: false,
       results: [],
+      free: false,
       notFind: false,
       kw:{
         fr: '',
@@ -117,6 +126,7 @@ export default {
       this.query = ''
       this.results = []
       this.show = false
+      this.free = false
     },
     search () {
         /** EXEMPLE DE REQUETE AVEC THESAURUS IMPOSÉ 
@@ -166,6 +176,14 @@ export default {
           resolve(results)
         })
       })
+    },
+    setFree () {
+      this.free = true
+      this.kw = {
+        fr: this.query,
+        en: this.query,
+        type: 'theme'
+      }
     },
     translate (item) {
       /**
