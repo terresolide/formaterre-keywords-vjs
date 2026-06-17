@@ -1,63 +1,58 @@
 <template>
     <span>
         <template v-if="listed.length > 0">
-            <h2>Principale(s) classification(s)</h2>
-            <div v-for="th in checkVocabularies">
-                    <thesaurus-component :thesaurus="th" format="checkbox" :selected="value.thesaurus[th.key]" :change="value.thesaurus[th.key] ? value.thesaurus[th.key].length : 0"
-                    :geonetwork="geonetwork" @add="addResult" @remove="remove"></thesaurus-component>
+            <h2>Principale classification</h2>
+            <div>Mots-clés obligatoires</div>
+            <div class="voclist">
+                <div v-for="th in checkVocabularies">
+                        <thesaurus-component :thesaurus="th" format="checkbox" :selected="value.thesaurus[th.key]" :change="value.thesaurus[th.key] ? value.thesaurus[th.key].length : 0"
+                        :geonetwork="geonetwork" @add="addResult" @remove="remove"></thesaurus-component>
+                </div>
             </div>
+           
         </template>
-        <h2>Mots-clés recommandés</h2>
-         <keyword-search :geonetwork="geonetwork" :types="types" :listed="recommanded" :keywords="value"
-         :excluded="excluded" @add="add" @remove="remove"></keyword-search>
-       
-               <div v-for="th in recVocabularies" class="sublist" >
-     {{ renderComponent[th.key] }}
-                        <thesaurus-component :change="renderComponent[th.key]" :thesaurus="th" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" 
-                       @add="addResult" @remove="remove"></thesaurus-component>
-                       <div>
-                        <div v-if="value.thesaurus[th.key]" class="list-keyword">
-                            <div v-for="item in value.thesaurus[th.key]" class="keyword" >
-                                <span class="close" @click="remove(th.key, item)">&times;</span>
-                                {{ item.values.fre }} | {{ item.values.eng }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-        <h2>Autres Mots-clés</h2>
-        <div class="voclist">
-            <h3>Mots-clés de thésaurus</h3>
-            <div v-for="list, key in vocabularies" ><label>{{ types[key].name }}</label>
-                <div v-for="th in list" class="sublist" v-if="listed.indexOf(th.key) < 0">
-            
-                        <thesaurus-component :thesaurus="th" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" @add="addResult" @remove="remove"></thesaurus-component>
-               
-                   
-                    <div>
-                        <div v-if="value.thesaurus[th.key]" class="list-keyword">
-                            <div v-for="item in value.thesaurus[th.key]" class="keyword" >
-                                <span class="close" @click="remove(th.key, item)">&times;</span>
-                                {{ item.values.fre }} | {{ item.values.eng }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            
-            </div>
-        </div>
-        <div class="voclist">
-            <h3>Mots-clés libres</h3>
-            <div v-for="list, type in value.free"  class="">
-                <label>{{ types[type].name }}</label>
+         <div class="voclist">
+                <div v-for="list, type in value.free"  class="">
+        
                 <div class="list-keyword">
                     <div v-for="item, index in list" class="keyword" >
                         <span class="close" @click="remove(null, item, index)">&times;</span>
-                        {{ item.fr }} | {{ item.en }}
+                        {{ item.fr }} | {{ item.en }}<br />
+                        ({{ types[type].name }})
                     </div>
                 </div>
             </div>
+            </div>
+        <div>NOTE</div>
+        {{ searchVocabularies }}
+          <keyword-search :geonetwork="geonetwork" :types="types" :listed="searchVocabularies" :keywords="value"
+         :excluded="excluded" @add="add" @remove="remove"></keyword-search>
+       
+          
+                 <h2>Mots-clés recommandés</h2>
+               <div v-for="th in recVocabularies" class="sublist" >
+                        <thesaurus-component :change="renderComponent[th.key]" :thesaurus="th" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" 
+                       @add="addResult" @remove="remove"></thesaurus-component>
+                </div>
+            </div>
+        
+           
+           
             
         </div>
+        <h2>Autres thésaurus</h2>
+        <div class="voclist">
+            <div v-for="list, key in vocabularies" ><label>{{ types[key].name }}</label>
+                <div v-for="th in list" class="sublist" v-if="listed.indexOf(th.key) < 0">
+            
+                        <thesaurus-component :thesaurus="th" :change="renderComponent[th.key]" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" @add="addResult" @remove="remove"></thesaurus-component>
+               
+        
+                </div>
+            
+            </div>
+        </div>
+       
     </span>
 </template>
 <script>
@@ -101,6 +96,7 @@ export default {
             default: () => ['external.dataCentre.formater-distributor', 'local.theme.polarisation', 'local.theme.ron']
         }
     },
+    
     data () {
         return {
             key: 0,
@@ -163,10 +159,11 @@ export default {
         add (keyword) {
             if (keyword.uri) {
                 this.addResult(keyword)
+               
             } else {
                 this.addFree(keyword)
             }
-            this.update(keyword.vocab)
+            
         },
         addFree (keyword) {
             var free = this.value.free
@@ -175,6 +172,7 @@ export default {
             }
             free[keyword.type].push(keyword)
             this.$emit('input', {...this.value, free: free})
+            this.$forceUpdate()
            
         },
         addResult (keyword) {
@@ -185,7 +183,7 @@ export default {
             }
             thesaurus[keyword.vocab].push(keyword)
             this.$emit('input', {...this.value, thesaurus: thesaurus})
-            
+            this.update(keyword.vocab)
 
         },
         
@@ -258,6 +256,7 @@ export default {
         },
         treatmentVocabulariesGeonetwork (json) {
             var vocabularies = {}
+            var others = []
             var self = this
             if (json[0]) {
                 json[0].forEach(function (th) {
@@ -270,6 +269,7 @@ export default {
                             self.recVocabularies.push(th)
                             return
                         }
+                        others.push(th)
                         if (!vocabularies[th.dname]) {
                             vocabularies[th.dname] = []
                         }
@@ -278,15 +278,17 @@ export default {
                     }
                 })
             }
+            this.searchVocabularies = this.recVocabularies.concat(others).map(x => x.key)
             this.vocabularies = vocabularies
         },
         update (vocab) {
             console.log(vocab)
             var self = this
            // setTimeout(function () {
-                if (!this.renderComponent[vocab]) {
-                    this.renderComponent[vocab] = 0
+                if (!this.renderComponent.hasOwnProperty(vocab)) {
+                    this.renderComponent[vocab] = 1
                 } else {
+
                     this.$set(this.renderComponent,vocab, this.renderComponent[vocab] + 1) 
                 }
             console.log(this.renderComponent)

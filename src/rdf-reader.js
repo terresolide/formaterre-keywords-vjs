@@ -70,12 +70,24 @@ const Reader = class Reader {
         }
         item.value = item.values.fre || item.values.eng
         item.narrowers = this.getNarrowers(root, concept, nsResolver)
+        if (item.narrowers.length === 0) {
+          item.narrowers = this.getNarrowersByUri(root, uri, nsResolver)
+        }
       }
       
       return item
     }
     getNarrowers (root, concept, nsResolver) {
       var narrowers = root.evaluate('./skos:narrower/@rdf:resource', concept, nsResolver, XPathResult.ANY_TYPE, null)
+      var narrower = null
+      var uris = []
+      while (narrower = narrowers.iterateNext()) {
+        uris.push(narrower.nodeValue)
+      }
+      return uris
+    }
+    getNarrowersByUri (root, uri, nsResolver) {
+      var narrowers = root.evaluate('//skos:Concept[skos:broader/@rdf:resource="' + uri + '"]/@rdf:about', root, nsResolver, XPathResult.ANY_TYPE, null)
       var narrower = null
       var uris = []
       while (narrower = narrowers.iterateNext()) {
@@ -96,9 +108,11 @@ const Reader = class Reader {
         while (node = result.iterateNext()) {
           // get skos Concept by uri
           var item = this.getItem(root, node.value, nsResolver)
+          if (this.name === 'external.place.regions') {
+            item.top = true
+          }
           uris.push(item)
         }
-        console.log(uris)
         return uris
       }
     }
@@ -143,7 +157,7 @@ const Reader = class Reader {
           findIndex = kws.length - 1
         }
         // search broader
-        var broader = root.evaluate('//rdf:Description[@rdf:about="' + uri + '"]/skos:broader/@rdf:resource', root, nsResolver, XPathResult.STRING_TYPE, null)
+        var broader = root.evaluate('//rdf:Description[@rdf:about="' + uri + '"]/skos:broader/@rdf:resource|//skos:Concept[@rdf:about="' + uri + '"]/skos:broader/@rdf:resource', root, nsResolver, XPathResult.STRING_TYPE, null)
         // console.log(broader)
         if (broader.resultType !== XPathResult.STRING_TYPE) {
            node = result.iterateNext()
@@ -156,6 +170,7 @@ const Reader = class Reader {
         }
         node = result.iterateNext()
       }
+      console.log(kws)
       return kws
     }
     extract (str) {
@@ -181,9 +196,9 @@ const Reader = class Reader {
       this.nsResolver = function (prefix) {
         switch(prefix) {
           case 'rdf':
-            return ns.rdf
+            return ns.rdf || 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
           case 'skos':
-            return ns.skos
+            return ns.skos || 'http://www.w3.org/2004/02/skos/core#'
           case 'xml':
             return 'http://www.w3.org/XML/1998/namespace'
           default:

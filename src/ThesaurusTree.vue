@@ -1,7 +1,11 @@
 <template>
     <span>
        
-    <div v-for="item in items"><input type="checkbox" :checked="isChecked(item)" @click="toggle(item)"/> 
+    <div v-for="item in items">
+        <template v-if="!item.top">
+            <input type="checkbox" :checked="isChecked(item)" @click="toggle(item)"/>
+        </template>
+        <template v-else>&bull;</template>
         <span class="item-value">{{ item.value }}</span>
         <template v-if="item.items && item.items.length > 0">
             <span class="mini-button expand" @click="toggleExpand($event)">-</span>

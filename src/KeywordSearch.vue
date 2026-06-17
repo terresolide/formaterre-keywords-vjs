@@ -201,6 +201,15 @@ export default {
           item.lang = lang
           results[index] = item
         })
+        // sort with listed thesaurus
+        var listed = this.listed
+        results.sort((a, b) => {
+          if (listed.indexOf(a.vocab) > listed.indexOf(b.vocab)) {
+            return 1
+          } else {
+            return -1
+          }
+        })
       }
      
       return results

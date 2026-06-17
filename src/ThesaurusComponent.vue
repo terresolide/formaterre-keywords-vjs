@@ -3,14 +3,21 @@
 <span>
     <template v-if="thesaurus">
         <h4 v-if="format !== 'checkbox'">{{ thesaurus.title }} <button  @click="load()">Afficher +</button></h4>
-        {{ change }}
-        <div v-if="renderComponent" :class="{thesaurus: format!= 'checkbox'}">
+        <div v-if="renderComponent && !hidden" :class="{thesaurus: format!= 'checkbox'}">
             <span v-if="format !== 'checkbox'"  @click="close()" class="mini-button close">&times;</span>
             <h4>{{ thesaurus.title }}</h4>
             <div>
                 <thesaurus-tree  :thesaurus="thesaurus.key" :items="items" :reader="reader" :selected="selected" @add="add" @remove="remove" @search="getItems"></thesaurus-tree>
             </div>
             
+        </div>
+        <div v-if="!hidden && format !== 'checkbox'">
+            <div v-if="selected" class="list-keyword">
+                <div v-for="item in selected" class="keyword" >
+                    <span class="close" @click="remove(item)">&times;</span>
+                    {{ item.values.fre }} | {{ item.values.eng }}
+                </div>
+            </div>
         </div>
         </template>
 
@@ -47,17 +54,19 @@
             }
         },
         watch: {
-            selected (newvalue) {
-                // this.hidden = true
-                // // memoriser le scroll?
-                // this.$nextTick(() => {
-                //     this.hidden = false
-                // })
+            change (newvalue) {
+                console.log('change', newvalue)
+                this.hidden = true
+                // memoriser le scroll?
+                this.$nextTick(() => {
+                    this.hidden = false
+                })
             }
         },
         data () {
             return {
                 renderComponent: false,
+                hidden: false,
                 reader: null,
                 items: []}
         },
