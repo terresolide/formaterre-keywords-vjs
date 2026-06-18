@@ -28,7 +28,7 @@
         
             </div>
         </div>
-        <div>NOTE SUR LA RECHERCHE</div>
+    
           <keyword-search :geonetwork="geonetwork" :types="types" :listed="searchVocabularies" :keywords="value"
          :excluded="excluded" @add="add" @remove="remove"></keyword-search>
        

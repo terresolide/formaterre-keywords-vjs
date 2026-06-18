@@ -1,6 +1,8 @@
 <template>
   <span> 
-    <div>Note explicative</div>
+    <div class="warning">
+      <h4>Recherche dans les thésaurus</h4>
+      Note explicative sur la recherche de mots-clés</div>
     Rechercher <input  class="search" v-model="query" type="text"   @focus="show=true" @keyup="search" />
     <div style="position:relative;">
       <div v-if="show && query.length > 2" class="tt-menu" 
@@ -242,6 +244,18 @@ h1, h2, h3 {
 .fa-close {
   color: darkred;
   vertical-align:top;
+}
+h4 {
+  margin:0;
+}
+.warning {
+  padding:10px;
+  border:1px solid darkgrey ;
+  border-radius:3px;
+  background: #f8f8f8;
+  max-width:900px;
+  margin: 10px 0;
+  font-style:italic;
 }
 input[type="search"] {
   border:none;
