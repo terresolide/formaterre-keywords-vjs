@@ -1,8 +1,5 @@
 <template>
   <span> 
-    <div class="warning">
-      <h4>Recherche dans les thésaurus</h4>
-      Note explicative sur la recherche de mots-clés</div>
     Rechercher <input  class="search" v-model="query" type="text"   @focus="show=true" @keyup="search" />
     <div style="position:relative;">
       <div v-if="show && query.length > 2" class="tt-menu" 
@@ -12,7 +9,7 @@
           <div v-for="item, index in results" @click="addResult(index)" 
           class="autocomplete-label tt-suggestion tt-selectable"       :class="{disabled: item.choose}">
             <div>
-            <span><span v-html="highlight(item.prefLabel || item.value)"></span><span> ({{item.lang}})</span></span>
+            <span><span v-html="highlight(item.prefLabel || item.value)"></span></span>
           </div>
           <div class="vocab">{{toTitle(item.vocab || item.thesaurusKey)}}</div>
         </div>
@@ -146,10 +143,11 @@ export default {
         }
        
         var promise1 = this.requestGeonetwork(query, 'fre')
-        var promise2 = this.requestGeonetwork(query, 'eng')
-        Promise.all([promise1, promise2])
-        .then(([result1, result2]) => {
-          var results = result1.concat(result2)
+       // var promise2 = this.requestGeonetwork(query, 'eng')
+       //  Promise.all([promise1])
+        this.requestGeonetwork(query, 'fre')
+        .then((results) => {
+  
           console.log(results)
           if (results.length === 0) {
             this.notFind = query
@@ -210,6 +208,7 @@ export default {
               return
             }
           }
+
           results.push(item) 
           
         })
@@ -218,7 +217,12 @@ export default {
         results.forEach(function (item, index) {
           item.vocab = item.thesaurusKey
           item.prefLabel = item.value
-          item.lang = lang
+          var values = {}
+          for (var x in item.values){
+            var key = x.substring(0,2)
+            values[key] = item.values[x]
+          }
+          item.values = values
           results[index] = item
         })
         // sort with listed thesaurus
@@ -248,15 +252,7 @@ h1, h2, h3 {
 h4 {
   margin:0;
 }
-.warning {
-  padding:10px;
-  border:1px solid darkgrey ;
-  border-radius:3px;
-  background: #f8f8f8;
-  max-width:900px;
-  margin: 10px 0;
-  font-style:italic;
-}
+
 input[type="search"] {
   border:none;
   outline:none;

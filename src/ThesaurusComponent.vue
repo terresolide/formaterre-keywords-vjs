@@ -15,7 +15,7 @@
             <div v-if="selected" class="list-keyword">
                 <div v-for="item in selected" class="keyword" :class="{recommanded: thesaurus.recommanded, checked: thesaurus.checked}">
                     <span class="close" @click="remove(item)">&times;</span>
-                    {{ item.values.fre }} | {{ item.values.eng }}
+                    {{ item.values.fr }} | {{ item.values.en }}
                 </div>
             </div>
         </div>

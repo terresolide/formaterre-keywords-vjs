@@ -10,13 +10,16 @@
             </div>
            
         </template>
+
          <div class="voclist">
             <span v-for="list, thesaurus in value.thesaurus" class="list-keyword">
-                <div v-for="item, index in list" class="keyword"  :class="{recommanded: vocname[thesaurus].recommanded, checked: vocname[thesaurus].checked}">
-                    <span class="close" @click="remove(thesaurus, item, index)">&times;</span>
-                    {{ item.values.fre }} | {{ item.values.eng }}<br />
-                    ({{ vocname[thesaurus].title}})
-                </div>
+                <template v-if="vocname[thesaurus]">
+                    <div v-for="item, index in list" class="keyword"  :class="{recommanded: vocname[thesaurus].recommanded, checked: vocname[thesaurus].checked}">
+                        <span class="close" @click="remove(thesaurus, item, index)">&times;</span>
+                        {{ item.values.fr }} | {{ item.values.en }}<br />
+                        ({{ vocname[thesaurus].title}})
+                    </div>
+                </template>
             </span>
             <div v-for="list, type in value.free"  class="list-keyword">
     
@@ -28,19 +31,22 @@
         
             </div>
         </div>
-    
+         <h3>Recherche dans les thésaurus</h3>
+       
+          <div class="warning"><slot></slot></div>
+      
           <keyword-search :geonetwork="geonetwork" :types="types" :listed="searchVocabularies" :keywords="value"
          :excluded="excluded" @add="add" @remove="remove"></keyword-search>
        
     
-        <h3>Thésaurus recommandés</h3>
+        <h4>Thésaurus recommandés</h4>
         <div v-for="th in recVocabularies" class="sublist" >
                 <thesaurus-component :change="renderComponent[th.key]" :thesaurus="th" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" 
                 @add="addResult" @remove="remove"></thesaurus-component>
         </div>
    
    
-        <h3>Autres thésaurus <span @click="showOthers=!showOthers" class="mini-button">{{ showOthers ? '-' : '+' }}</span></h3>
+        <h4>Autres thésaurus <span @click="showOthers=!showOthers" class="mini-button">{{ showOthers ? '-' : '+' }}</span></h4>
 
         <div v-show="showOthers" class="voclist">
             <div v-for="list, key in vocabularies" ><label>{{ types[key].name }}</label>
@@ -366,26 +372,15 @@ label {
 h3 {
     margin-bottom:0;
 }
-/*.check-listed {
-    display:inline-block;
-    min-width:250px;
-    width:250px;
-    padding:1px 5px;
-    vertical-align:top;
-    cursor: pointer;
+.warning {
+  padding:10px;
+  border:1px solid darkgrey ;
+  border-radius:3px;
+  background: #f8f8f8;
+  max-width:900px;
+  margin: 10px 0;
+  font-style:italic;
 }
-.check-listed:hover {
-    background: rgba(100,0,0, 0.1);
-}
-.check-listed input[type="checkbox"] {
-    display:inline-block;
-    vertical-align:top;
-}
-.check-listed span {
-    display:inline-block;
-    vertical-align:top;
-    width:calc(100% - 30px);
-}*/
 .sublist {
     position:relative;
     margin-left: 10px;
