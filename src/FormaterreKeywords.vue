@@ -15,7 +15,7 @@
             <span v-for="list, thesaurus in value.thesaurus" class="list-keyword">
                 <template v-if="vocname[thesaurus]">
                     <div v-for="item, index in list" class="keyword"  :class="{recommanded: vocname[thesaurus].recommanded, checked: vocname[thesaurus].checked}">
-                        <span class="close" @click="remove(thesaurus, item, index)">&times;</span>
+                        <span v-if="fixed.indexOf(thesaurus) < 0" class="close" @click="remove(thesaurus, item, index)">&times;</span>
                         {{ item.values.fr }} | {{ item.values.en }}<br />
                         ({{ vocname[thesaurus].title}})
                     </div>
@@ -41,7 +41,7 @@
     
         <h4>Thésaurus recommandés</h4>
         <div v-for="th in recVocabularies" class="sublist" >
-                <thesaurus-component :change="renderComponent[th.key]" :thesaurus="th" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" 
+                <thesaurus-component :change="renderComponent[th.key]" :thesaurus="th" :fixed="fixed.indexOf(th.key) >= 0" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" 
                 @add="addResult" @remove="remove"></thesaurus-component>
         </div>
    
@@ -51,7 +51,7 @@
         <div v-show="showOthers" class="voclist">
             <div v-for="list, key in vocabularies" ><label>{{ types[key].name }}</label>
                 <div v-for="th in list" class="sublist" v-if="listed.indexOf(th.key) < 0">
-                        <thesaurus-component :thesaurus="th" :change="renderComponent[th.key]" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" @add="addResult" @remove="remove"></thesaurus-component>
+                        <thesaurus-component :thesaurus="th" :fixed="fixed.indexOf(th) >= 0" :change="renderComponent[th.key]" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" @add="addResult" @remove="remove"></thesaurus-component>
                
                 </div>
             
@@ -99,6 +99,10 @@ export default {
         excluded: {
             type: Array,
             default: () => ['external.dataCentre.formater-distributor', 'local.theme.polarisation', 'local.theme.ron']
+        }, 
+        fixed: {
+            type: Array,
+            default: () => ['external.discipline.formater-discipline']
         }
     },
     
@@ -108,6 +112,7 @@ export default {
             vocabularies: {},
             checkVocabularies: [],
             recVocabularies: [],
+            searchVocabularies: [],
             vocname: {},
             renderComponent: {},
             showOthers: false,
@@ -387,7 +392,7 @@ h3 {
 }
 .voclist {
     display:inline-block;
-    width:48%;
+    width:45%;
     padding:0px 10px;
     vertical-align:top;
 }

@@ -38,7 +38,7 @@ export default {
         items: {
             type: Array,
             default: () => []
-        } 
+        }
     },
     watch: {
         selected () {
@@ -76,6 +76,7 @@ export default {
             }, 0)
         },
         toggle (item) {
+           console.log(item)
            if (this.isChecked(item)) {
                 console.log('remove')
                 this.remove( item)

@@ -128,30 +128,22 @@ const Reader = class Reader {
         var values = {}
 
         while(x = labels.iterateNext()) {
-          var lang = x.getAttribute('xml:lang')
-          switch(lang) {
-            case 'fr':
-              lang = 'fre'
-              break
-            case 'en':
-              lang = 'eng'
-              break
-            default:
-              continue
+          var lang = x.getAttribute('xml:lang').substring(0, 2)
+          if (lang === 'fr' || lang === 'en') {
+            values[lang] = x.innerHTML
           }
-          values[lang] = x.innerHTML
         }
         var item = {
           vocab: this.name,
           uri: uri,
-          value: values.fre,
+          value: values.fr || values.en,
           values: values
         }
         // find 
         var findIndex = kws.findIndex(x => x.uri === uri)
         if (findIndex >= 0) {
           kws[findIndex].values = Object.assign(kws[findIndex].values, values)
-          kws[findIndex].value = kws[findIndex].values.fre
+          kws[findIndex].value = kws[findIndex].values.fr
         } else {
           kws.push(item)
           findIndex = kws.length - 1
