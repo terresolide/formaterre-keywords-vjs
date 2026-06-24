@@ -51,7 +51,7 @@
         <div v-show="showOthers" class="voclist">
             <div v-for="list, key in vocabularies" ><label>{{ types[key].name }}</label>
                 <div v-for="th in list" class="sublist" v-if="listed.indexOf(th.key) < 0">
-                        <thesaurus-component :thesaurus="th" :fixed="fixed.indexOf(th) >= 0" :change="renderComponent[th.key]" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" @add="addResult" @remove="remove"></thesaurus-component>
+                        <thesaurus-component :thesaurus="th" :fixed="fixed.indexOf(th.key) >= 0" :change="renderComponent[th.key]" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" @add="addResult" @remove="remove"></thesaurus-component>
                
                 </div>
             
@@ -102,7 +102,7 @@ export default {
         }, 
         fixed: {
             type: Array,
-            default: () => ['external.discipline.formater-discipline']
+            default: () => ['external.discipline.formater-discipline', 'external.product.formaterre-product-gn']
         }
     },
     
