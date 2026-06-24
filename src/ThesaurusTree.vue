@@ -3,7 +3,7 @@
        
     <div v-for="item in items">
         <template v-if="!item.top">
-            <input type="checkbox" :checked="isChecked(item)" @click="toggle(item)"/>
+            <input type="checkbox" :checked="isChecked(item)" :disabled="isFixed(item)" @click="toggle(item)"/>
         </template>
         <template v-else>&bull;</template>
         <span class="item-value">{{ item.value }}</span>
@@ -59,6 +59,13 @@ export default {
         isChecked (item) {
             var find = this.selected.find(x => x.uri === item.uri)
             return find
+        },
+        isFixed (item) {
+            var find = this.isChecked(item)
+            if (find) {
+                return find.fixed
+            }
+            return false
         },
         search (path, item) {
             if (this.uri) {

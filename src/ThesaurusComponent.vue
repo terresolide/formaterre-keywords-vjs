@@ -13,7 +13,7 @@
         </div>
         <div v-if="!hidden && format !== 'checkbox'">
             <div v-if="selected" class="list-keyword">
-                <div v-for="item in selected" class="keyword" :class="{recommanded: thesaurus.recommanded, checked: thesaurus.checked}">
+                <div v-for="item in selected" class="keyword" :class="{recommanded: thesaurus.recommanded, checked: thesaurus.checked, fixed: fixed}">
                     <span v-if="!fixed" class="close" @click="remove(item)">&times;</span>
                     {{ item.values.fr }} | {{ item.values.en }}
                 </div>
@@ -59,7 +59,6 @@
         },
         watch: {
             change (newvalue) {
-                console.log('change', newvalue)
                 this.hidden = true
                 // memoriser le scroll?
                 this.$nextTick(() => {

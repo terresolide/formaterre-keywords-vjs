@@ -24,7 +24,6 @@ const Reader = class Reader {
         fetch(url + this.name, {headers: {accept: 'text/xml'}})
         .then(resp => resp.text())
         .then(str => {
-           console.log(str.length)
            var thesauri = this.extract(str)
            if (success) {
             success(thesauri)
@@ -98,8 +97,8 @@ const Reader = class Reader {
     extractTopOfConcept () {
       var root = this.root
       var nsResolver = this.nsResolver
-       var result = root.evaluate('//skos:hasTopConcept/@rdf:resource', root, nsResolver, XPathResult.ANY_TYPE, null)
-      console.log(result)
+      var result = root.evaluate('//skos:hasTopConcept/@rdf:resource', root, nsResolver, XPathResult.ANY_TYPE, null)
+      // console.log(result)
       if (result.resultType !== XPathResult.UNORDERED_NODE_ITERATOR_TYPE && result.resultType !== XPathResult.ORDERED_NODE_ITERATOR_TYPE) {
         return null
       } else {
@@ -154,15 +153,16 @@ const Reader = class Reader {
         if (broader.resultType !== XPathResult.STRING_TYPE) {
            node = result.iterateNext()
           continue
-        } else {
-          console.log('broader = ', broader)
         }
+        // else {
+        //   console.log('broader = ', broader)
+        // }
         if (broader.stringValue) {
           kws[findIndex].broader = broader.stringValue
         }
         node = result.iterateNext()
       }
-      console.log(kws)
+      // console.log(kws)
       return kws
     }
     extract (str) {
@@ -220,7 +220,7 @@ const Reader = class Reader {
       return keywords
     }
     orderItems(kws, kw) {
-      console.log(kws.length)
+      // console.log(kws.length)
       if (!kw) {
         var keywords = kws.filter(x => !x.broader || typeof x.broader === undefined) 
          
@@ -230,7 +230,7 @@ const Reader = class Reader {
       for(var i=0; i < keywords.length; i ++) {
          keywords[i].items = this.orderItems(kws, keywords[i])
       }
-      console.log(keywords)
+      // console.log(keywords)
       return keywords
 
     }
