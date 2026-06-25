@@ -295,7 +295,9 @@ export default {
                     }
                 })
             }
-            this.searchVocabularies = this.recVocabularies.concat(others).map(x => x.key)
+            var searchVocabularies = this.recVocabularies.concat(others).map(x => x.key)
+            this.searchVocabularies = searchVocabularies.filter(x => this.fixed.indexOf(x) < 0)
+            console.log(this.searchVocabularies)
             this.vocabularies = vocabularies
         },
         update (vocab) {
