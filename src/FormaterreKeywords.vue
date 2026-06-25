@@ -15,7 +15,7 @@
             <span v-for="list, thesaurus in value.thesaurus" class="list-keyword">
                 <template v-if="vocname[thesaurus]">
                     <div v-for="item, index in list" class="keyword"  :class="{recommanded: vocname[thesaurus].recommanded, checked: vocname[thesaurus].checked, fixed: fixed.indexOf(thesaurus) >= 0 || item.fixed}">
-                        <span v-if="fixed.indexOf(thesaurus) < 0" class="close" @click="remove(thesaurus, item, index)">&times;</span>
+                        <span v-if="fixed.indexOf(thesaurus) < 0 && !item.fixed" class="close" @click="remove(thesaurus, item, index)">&times;</span>
                         {{ item.values.fr }} | {{ item.values.en }}<br />
                         ({{ vocname[thesaurus].title}})
                     </div>
@@ -102,7 +102,7 @@ export default {
         }, 
         fixed: {
             type: Array,
-            default: () => ['external.discipline.formater-discipline', 'external.product.formaterre-product-gn']
+            default: () => [ 'external.product.formaterre-product-gn']
         }
     },
     

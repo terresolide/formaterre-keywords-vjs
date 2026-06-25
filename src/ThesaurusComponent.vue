@@ -14,7 +14,7 @@
         <div v-if="!hidden && format !== 'checkbox'">
             <div v-if="selected" class="list-keyword">
                 <div v-for="item in selected" class="keyword" :class="{recommanded: thesaurus.recommanded, checked: thesaurus.checked, fixed: fixed}">
-                    <span v-if="!fixed" class="close" @click="remove(item)">&times;</span>
+                    <span v-if="!fixed && !item.fixed" class="close" @click="remove(item)">&times;</span>
                     {{ item.values.fr }} | {{ item.values.en }}
                 </div>
             </div>

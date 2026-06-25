@@ -3,6 +3,7 @@
        
     <div v-for="item in items">
         <template v-if="!item.top">
+    
             <input type="checkbox" :checked="isChecked(item)" :disabled="isFixed(item)" @click="toggle(item)"/>
         </template>
         <template v-else>&bull;</template>
