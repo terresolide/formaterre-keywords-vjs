@@ -5,6 +5,7 @@
 const Reader = class Reader {
     name =  null
     root = null
+    lang = 'en'
     nsResolver = null
     /**
      * Load an rdf file and extract keywords in a tree
@@ -15,8 +16,11 @@ const Reader = class Reader {
      * @param {string} name identifiant geonetwork/interne du thesaurus
      * @returns 
      */
-    constructor (url, name) {
+    constructor (url, name, lang) {
       this.name = name
+      if (lang) {
+        this.lang = lang
+      }
     }
 
     load (url) {
@@ -132,10 +136,14 @@ const Reader = class Reader {
             values[lang] = x.innerHTML
           }
         }
+        var value = values.en
+        if (values[this.lang]) {
+          value = values[this.lang]
+        }
         var item = {
           vocab: this.name,
           uri: uri,
-          value: values.fr || values.en,
+          value: value,
           values: values
         }
         // find 

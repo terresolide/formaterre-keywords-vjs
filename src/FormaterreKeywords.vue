@@ -1,10 +1,27 @@
+<i18n>
+{
+    "fr": {
+        "main_classification": "Principale classification",
+        "other_thesauri": "Autres thésaurus",
+        "recommended_thesauri": "Thésaurus recommandés",
+        "search_in_thesauri": "Recherche dans les thésaurus"
+    },
+    "en": {
+        "main_classification": "Main classification",
+        "other_thesauri": "Other thesauri",
+        "recommended_thesauri": "Recommended thesauri",
+        "search_in_thesauri": "Search in thesauri"
+    }
+}
+</i18n>
 <template>
     <span>
+    
         <template v-if="listed.length > 0">
-            <h3>Principale classification</h3>
+            <h3>{{$t('main_classification')}}</h3>
             <div class="voclist">
                 <div v-for="th in checkVocabularies">
-                        <thesaurus-component :thesaurus="th" format="checkbox" :selected="value.thesaurus[th.key]" :change="value.thesaurus[th.key] ? value.thesaurus[th.key].length : 0"
+                        <thesaurus-component :thesaurus="th" :lang="lang" format="checkbox" :selected="value.thesaurus[th.key]" :change="value.thesaurus[th.key] ? value.thesaurus[th.key].length : 0"
                         :geonetwork="geonetwork" @add="addResult" @remove="remove"></thesaurus-component>
                 </div>
             </div>
@@ -16,7 +33,7 @@
                 <template v-if="vocname[thesaurus]">
                     <div v-for="item, index in list" class="keyword"  :class="{recommanded: vocname[thesaurus].recommanded, checked: vocname[thesaurus].checked, fixed: fixed.indexOf(thesaurus) >= 0 || item.fixed}">
                         <span v-if="fixed.indexOf(thesaurus) < 0 && !item.fixed" class="close" @click="remove(thesaurus, item, index)">&times;</span>
-                        {{ item.values.fr }} | {{ item.values.en }}<br />
+                         {{ item.values[lang]}} | {{ item.values[lang === 'fr' ? 'fr' : 'en']}}<br />
                         ({{ vocname[thesaurus].title}})
                     </div>
                 </template>
@@ -25,33 +42,33 @@
     
                 <div v-for="item, index in list" class="keyword" >
                     <span class="close" @click="remove(null, item, index)">&times;</span>
-                    {{ item.fr }} | {{ item.en }}<br />
-                    ({{ types[type].name }})
+                    {{ item[lang]}} | {{ item[lang === 'fr' ? 'fr' : 'en']}}<br />
+                    ({{ types[type].name[lang] }})
                 </div>
         
             </div>
         </div>
-         <h3>Recherche dans les thésaurus</h3>
+         <h3>{{$t('search_in_thesauri')}}</h3>
        
           <div class="warning"><slot></slot></div>
       
-          <keyword-search :geonetwork="geonetwork" :types="types" :listed="searchVocabularies" :keywords="value"
+          <keyword-search :geonetwork="geonetwork" :lang="lang" :types="types" :listed="searchVocabularies" :keywords="value"
          :excluded="excluded" @add="add" @remove="remove"></keyword-search>
        
     
-        <h4>Thésaurus recommandés</h4>
+        <h4>{{$t('recommended_thesauri')}}</h4>
         <div v-for="th in recVocabularies" class="sublist" >
-                <thesaurus-component :change="renderComponent[th.key]" :thesaurus="th" :fixed="fixed.indexOf(th.key) >= 0" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" 
+                <thesaurus-component :change="renderComponent[th.key]" :thesaurus="th" :lang="lang" :fixed="fixed.indexOf(th.key) >= 0" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" 
                 @add="addResult" @remove="remove"></thesaurus-component>
         </div>
    
    
-        <h4>Autres thésaurus <span @click="showOthers=!showOthers" class="mini-button">{{ showOthers ? '-' : '+' }}</span></h4>
+        <h4>{{$t('other_thesauri')}}<span @click="showOthers=!showOthers" class="mini-button">{{ showOthers ? '-' : '+' }}</span></h4>
 
         <div v-show="showOthers" class="voclist">
-            <div v-for="list, key in vocabularies" ><label>{{ types[key].name }}</label>
+            <div v-for="list, key in vocabularies" ><label>{{ types[key].name[lang] }}</label>
                 <div v-for="th in list" class="sublist" v-if="listed.indexOf(th.key) < 0">
-                        <thesaurus-component :thesaurus="th" :fixed="fixed.indexOf(th.key) >= 0" :change="renderComponent[th.key]" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" @add="addResult" @remove="remove"></thesaurus-component>
+                        <thesaurus-component :thesaurus="th" :lang="lang" :fixed="fixed.indexOf(th.key) >= 0" :change="renderComponent[th.key]" :selected="value.thesaurus[th.key]" :geonetwork="geonetwork" @add="addResult" @remove="remove"></thesaurus-component>
                
                 </div>
             
@@ -118,36 +135,48 @@ export default {
             showOthers: false,
             types: {
                 discipline: {
-                    name: 'Discipline',
-                    definition: 'Mot-clé en relation avec une branche de la connaissance'
+                    name: { fr: 'Discipline', 'en': 'Discipline'},
+                    definition: {
+                        fr: 'Mot-clé en relation avec une branche de la connaissance',
+                        en: 'Keyword related to a branch of knowledge'
+                    }
                 },
                 theme: {
-                    name: 'Thème',
-                    definition: 'Mot clé identifiant un sujet particulier'
+                    name: {fr: 'Thème', en: 'Theme'},
+                    definition: {
+                        fr: 'Mot clé identifiant un sujet particulier',
+                        en: 'Keyword identifying a specific subject'
+                    }
                 },
                 platform: {
-                    name: 'Plateforme',
-                    definition: 'Mot clé identifiant une plateforme'
+                    name: {fr: 'Plateforme', en: 'Platform'},
+                    definition: {
+                        fr: 'Mot clé identifiant une plateforme',
+                        en: 'Keyword identifying a platform'
+                    }
                 },
                 place: {
-                    name: 'Localisation',
-                    definition: 'Mot-clé identifiant un lieu'
+                    name: {fr: 'Localisation', en: 'Place'},
+                    definition: {
+                        fr: 'Mot-clé identifiant un lieu',
+                        en: 'Keyword identifying a location'
+                    }
                 },
                 stratum: {
-                    name: 'Couche géologique',
+                    name: { fr: 'Couche géologique', 'en': 'Geological layer'},
                     definition: ''
                 },
                 temporal: {
-                    name: 'Période de temps'
+                    name: {fr: 'Période de temps', en: 'Temporal period'},
                 },
                 process: {
-                    name: 'Procédé'
+                    name: {fr: 'Procédé', en : 'Process'}
                 }, 
                 product: {
-                    name: 'Type de produit'
+                    name: {fr: 'Type de produit', en: 'Product type'}
                 },
                 project: {
-                    name: 'Project'
+                    name: {fr: 'Projet', en: 'Project'}
                 }
             }
         }
@@ -160,6 +189,9 @@ export default {
                 return 'eng'
             }
         }
+    },
+    created () {
+         this.$i18n.locale = this.lang
     },
     mounted () {
         

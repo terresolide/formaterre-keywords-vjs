@@ -1,6 +1,29 @@
+<i18n>
+  {
+    "fr": {
+      "add": "Ajouter",
+      "add_free": "AJOUTER UN MOT-CLÉ LIBRE",
+      "add_to_thesaurus": "Je souhaite qu'il soit ajouté à un thésaurus",
+      "can_add_free": "Vous pouvez entrer un mot clé libre",
+      "cancel": "Annuler",
+      "no_keyword": "Aucun mot-clé correspondant trouvé dans les thésaurus!",
+      "search": "Rechercher"
+    },
+    "en": {
+      "add": "Add",
+      "add_free": "ADD A FREE-TEXT KEYWORD",
+      "add_to_thesaurus": "I would like it to be added to a thesaurus.",
+      "can_add_free": "You can enter a free-text keyword.",
+      "cancel": "Cancel",
+      "no_keyword": "No matching keywords found in the thesauri!",
+      "search": "Search"
+
+    }
+  }
+</i18n>
 <template>
   <span> 
-    Rechercher <input  class="search" v-model="query" type="text"   @focus="show=true" @keyup="search" />
+    {{$t('search')}} <input  class="search" v-model="query" type="text"   @focus="show=true" @keyup="search" />
     <div style="position:relative;">
       <div v-if="show && query.length > 2" class="tt-menu" 
         style="position: absolute; top: 0; left: 50px; z-index: 100; /*! display: none; */">
@@ -13,28 +36,28 @@
           </div>
           <div class="vocab">{{toTitle(item.vocab || item.thesaurusKey)}}</div>
         </div>
-        <div @click="setFree" class="autocomplete-label tt-suggestion tt-selectable" >AJOUTER UN MOT CLÉ LIBRE &rarr; </div>
+        <div @click="setFree" class="autocomplete-label tt-suggestion tt-selectable" >{{$t('add_free')}} &rarr; </div>
       </div>
       <div v-else class="tt-dataset tt-dataset-concept" style="padding:5px 10px;">
           <div>
           <template v-if="results.length === 0">
-            Aucun mot-clé correspondant trouvé dans les thésaurus!<br>
+            {{$t('no_keyword')}}<br>
             </template>
-          Vous pouvez entrer un mot clé libre</div>
+          {{$t('can_add_free')}}</div>
           <ul style="list-style-type: none;">
             <li><span class="lang-label">FR</span> <input type="text" v-model="kw.fr" /></li>
             <li><span class="lang-label">EN</span> <input type="text" v-model="kw.en" /></li>
             <li><span class="lang-label">Type</span>
                 <select v-model="kw.type">
-                  <option v-for="tp, key in types" :value="key" :title="tp.definition">{{ tp.name }}</option>
+                  <option v-for="tp, key in types" :value="key" :title="tp.definition ? tp.definition[lang]: ''">{{ tp.name[lang] }}</option>
                 </select>
             </li>
-            <li><input type="checkbox" v-model="kw.thesaurus" style="margin-top:7px;vertical-align: top;"> <span style="display:inline-block;width:calc(100% - 30px)">Je souhaite qu'il soit ajouté à un thésaurus</span></li>
+            <li><input type="checkbox" v-model="kw.thesaurus" style="margin-top:7px;vertical-align: top;"> <span style="display:inline-block;width:calc(100% - 30px)">{{$t('add_to_thesaurus')}}</span></li>
           </ul>
           
           <div style="text-align:right;margin:0 10px 15px 0;">
-            <button v-if="free" @click="free=false">Annuler</button>
-            <button @click="addFree">Ajouter</button>
+            <button v-if="free" @click="free=false">{{$t('cancel')}}</button>
+            <button @click="addFree">{{$t('add')}}</button>
           </div>
       </div>
     </div>
@@ -49,9 +72,9 @@ export default {
       type: Object,
       default: () => {return {thesaurus: {}, free: {}}}
     },
-    locale: {
+    lang: {
       type: String,
-      default: 'fre'
+      default: 'en'
     },
     geonetwork: {
       type: String,
@@ -87,6 +110,9 @@ export default {
         type: 'theme'
       }
     }
+  },
+  created () {
+    this.$i18n.locale = this.lang === 'fr' ? 'fr' : 'en'
   },
   methods: {
     addFree () {

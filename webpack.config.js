@@ -39,11 +39,11 @@ module.exports = {
           // other vue-loader options go here
         }*/
       },
-    //  {
-    //     resourceQuery: /blockType=i18n/,
-    //     type: 'javascript/auto',
-    //     loader: '@intlify/vue-i18n-loader'
-    //   },
+     {
+        resourceQuery: /blockType=i18n/,
+        type: 'javascript/auto',
+        loader: '@intlify/vue-i18n-loader'
+      },
       {
         test: /\.css$/,
         use: [ 'vue-style-loader', 'css-loader']

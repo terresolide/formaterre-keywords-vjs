@@ -2,12 +2,12 @@
 <template>
 <span>
     <template v-if="thesaurus">
-        <h4 v-if="format !== 'checkbox'">{{ thesaurus.title }} <button v-if="!fixed" @click="load()">Afficher +</button></h4>
+        <h4 v-if="format !== 'checkbox'">{{ thesaurus.title }} <button v-if="!fixed" @click="load()">{{lang === 'fr' ? 'Afficher' : 'Display'}}</button></h4>
         <div v-if="renderComponent && !hidden" :class="{thesaurus: format!= 'checkbox'}">
             <span v-if="format !== 'checkbox'"  @click="close()" class="mini-button close">&times;</span>
-            <h4>{{ thesaurus.title }}</h4>
+            <h4 style="padding-right: 20px;">{{ thesaurus.title }}</h4>
             <div>
-                <thesaurus-tree  :thesaurus="thesaurus.key" :items="items" :reader="reader" :selected="selected" @add="add" @remove="remove" @search="getItems"></thesaurus-tree>
+                <thesaurus-tree  :thesaurus="thesaurus.key" :items="items" :lang="lang" :reader="reader" :selected="selected" @add="add" @remove="remove" @search="getItems"></thesaurus-tree>
             </div>
             
         </div>
@@ -15,7 +15,7 @@
             <div v-if="selected" class="list-keyword">
                 <div v-for="item in selected" class="keyword" :class="{recommanded: thesaurus.recommanded, checked: thesaurus.checked, fixed: fixed}">
                     <span v-if="!fixed && !item.fixed" class="close" @click="remove(item)">&times;</span>
-                    {{ item.values.fr }} | {{ item.values.en }}
+                    {{ item.values[lang]}} | {{ item.values[lang === 'fr' ? 'en' : 'fr'] }}
                 </div>
             </div>
         </div>
@@ -55,6 +55,10 @@
             fixed: {
                 type: Boolean,
                 default: false
+            },
+            lang: {
+                type: String,
+                default: 'fr'
             }
         },
         watch: {
@@ -111,7 +115,7 @@
                 }
                 var url = this.geonetwork + '/srv/api/registries/vocabularies/'
                 var self = this
-                this.reader = new Reader(url, this.thesaurus.key)
+                this.reader = new Reader(url, this.thesaurus.key, this.lang)
                 this.reader.load(url,  this.thesaurus.key)
                 .then (items => {
                     this.items = items
