@@ -33,7 +33,7 @@
                 <template v-if="vocname[thesaurus]">
                     <div v-for="item, index in list" class="keyword"  :class="{recommanded: vocname[thesaurus].recommanded, checked: vocname[thesaurus].checked, fixed: fixed.indexOf(thesaurus) >= 0 || item.fixed}">
                         <span v-if="fixed.indexOf(thesaurus) < 0 && !item.fixed" class="close" @click="remove(thesaurus, item, index)">&times;</span>
-                         {{ item.values[lang]}} | {{ item.values[lang === 'fr' ? 'fr' : 'en']}}<br />
+                         {{ item.values[lang]}} | {{ item.values[lang === 'fr' ? 'en' : 'fr']}}<br />
                         ({{ vocname[thesaurus].title}})
                     </div>
                 </template>
@@ -42,7 +42,7 @@
     
                 <div v-for="item, index in list" class="keyword" >
                     <span class="close" @click="remove(null, item, index)">&times;</span>
-                    {{ item[lang]}} | {{ item[lang === 'fr' ? 'fr' : 'en']}}<br />
+                    {{ item[lang]}} | {{ item[lang === 'fr' ? 'en' : 'fr']}}<br />
                     ({{ types[type].name[lang] }})
                 </div>
         
@@ -154,6 +154,9 @@ export default {
                         fr: 'Mot clé identifiant une plateforme',
                         en: 'Keyword identifying a platform'
                     }
+                },
+                datacentre: {
+                    name: {fr: 'Centre de données', en: "Data centre"}
                 },
                 place: {
                     name: {fr: 'Localisation', en: 'Place'},
