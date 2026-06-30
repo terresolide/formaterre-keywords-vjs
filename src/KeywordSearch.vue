@@ -97,6 +97,11 @@ export default {
       default: () => {}
     }
   },
+  /* computed: {
+    vocabs () {
+      return this.listed.map(x => x.key)
+    }
+  }, */
   data () {
     return {
       query: '',
@@ -124,7 +129,7 @@ export default {
 
     },
     addResult (index) {
-     
+     // this.results[index].inScheme = this.listed[this.results[index].vocab]
      // this.value = value
       this.$emit('add', this.results[index])
       this.reset()
@@ -252,9 +257,10 @@ export default {
           results[index] = item
         })
         // sort with listed thesaurus
-        var listed = this.listed
+        // var listed = this.listed
+        var vocabs = this.listed
         results.sort((a, b) => {
-          if (listed.indexOf(a.vocab) > listed.indexOf(b.vocab)) {
+          if (vocabs.indexOf(a.vocab) > vocabs.indexOf(b.vocab)) {
             return 1
           } else {
             return -1

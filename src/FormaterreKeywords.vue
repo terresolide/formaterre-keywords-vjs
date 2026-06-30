@@ -251,6 +251,7 @@ export default {
         },
         addResult (keyword) {
             console.log(keyword)
+            // ajout du scheme du thesaurus
             var thesaurus = Object.assign(this.value.thesaurus, {})
             if (!thesaurus[keyword.vocab]) {
                 thesaurus[keyword.vocab] = []
@@ -358,8 +359,8 @@ export default {
                     }
                 })
             }
-            var searchVocabularies = this.recVocabularies.concat(others).map(x => {return {key: x.key, scheme: x.defaultNamespace}})
-            this.searchVocabularies = searchVocabularies.filter(x => this.fixed.indexOf(x.key) < 0)
+            var searchVocabularies = this.recVocabularies.concat(others).map(x => x.key)
+            this.searchVocabularies = searchVocabularies.filter(x => this.fixed.indexOf(x) < 0)
             console.log(this.searchVocabularies)
             this.vocabularies = vocabularies
         },
