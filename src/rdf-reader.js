@@ -68,10 +68,10 @@ const Reader = class Reader {
         var label = labels.iterateNext()
         while(label) {
           var lang = label.getAttribute('xml:lang')
-          item.values[lang === 'fr' ? 'fre' : 'eng'] = label.innerHTML
+          item.values[lang] = label.innerHTML
           label = labels.iterateNext()
         }
-        item.value = item.values.fre || item.values.eng
+        item.value = item.values.fr || item.values.en
         item.narrowers = this.getNarrowers(root, concept, nsResolver)
         if (item.narrowers.length === 0) {
           item.narrowers = this.getNarrowersByUri(root, uri, nsResolver)

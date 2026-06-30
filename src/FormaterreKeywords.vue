@@ -1,3 +1,31 @@
+/**
+ * Format attendu
+ * value = {
+ *      thesaurus: {
+           identifiant geonetwork: {
+                scheme: on le trouve dans defaultNamespace de l'objet thesaurus de geonetwork (mais pas tjs cohérent!! gemet et regions)
+                title: title 
+                concepts: [{
+                    id: identifiant,
+                    url: uri,
+                    title: valeur en anglais
+                }]
+           }
+           external.discipline.formater-discipline: {
+                scheme: 'https://service.poleterresolide.fr/voc/science_field',
+                title: 'Formaterre | Solid Earth Discipline ontology',
+                concepts: [
+                    {
+                        id: 'D040100',
+                        title: 'Glacial processes',
+                        url: 'https://service.poleterresolide.fr/voc/science_field/D040100'
+
+                    }
+                ] 
+           } 
+
+ }
+ */
 <i18n>
 {
     "fr": {
@@ -330,8 +358,8 @@ export default {
                     }
                 })
             }
-            var searchVocabularies = this.recVocabularies.concat(others).map(x => x.key)
-            this.searchVocabularies = searchVocabularies.filter(x => this.fixed.indexOf(x) < 0)
+            var searchVocabularies = this.recVocabularies.concat(others).map(x => {return {key: x.key, scheme: x.defaultNamespace}})
+            this.searchVocabularies = searchVocabularies.filter(x => this.fixed.indexOf(x.key) < 0)
             console.log(this.searchVocabularies)
             this.vocabularies = vocabularies
         },
