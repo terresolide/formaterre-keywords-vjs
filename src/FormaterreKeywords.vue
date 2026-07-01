@@ -1,30 +1,34 @@
 /**
- * Format attendu
+ * Format attendu pour STAC 
+ * en gardant les éléments pour le composant
  * value = {
  *      thesaurus: {
-           identifiant geonetwork: {
-                scheme: on le trouve dans defaultNamespace de l'objet thesaurus de geonetwork (mais pas tjs cohérent!! gemet et regions)
-                title: title 
-                concepts: [{
-                    id: identifiant,
-                    url: uri,
-                    title: valeur en anglais
-                }]
-           }
-           external.discipline.formater-discipline: {
-                scheme: 'https://service.poleterresolide.fr/voc/science_field',
-                title: 'Formaterre | Solid Earth Discipline ontology',
-                concepts: [
-                    {
-                        id: 'D040100',
-                        title: 'Glacial processes',
-                        url: 'https://service.poleterresolide.fr/voc/science_field/D040100'
-
-                    }
-                ] 
-           } 
-
- }
+ *         identifiant geonetwork: {
+ *              scheme: (STAC) on le trouve dans defaultNamespace de l'objet thesaurus de geonetwork (mais pas tjs cohérent!! gemet et regions)
+ *              title: title 
+ *              concepts: [{
+ *                  id: identifiant, (STAC)
+ *                  url: uri, (STAC)
+ *                  title: valeur en anglais, (STAC)
+ *                  values: {fr: , en} les valeurs en bilingue,
+ *                  broader: uri du parent, // uniquement pour naviguer dans le thesaurus
+ *                  narrowers: [] tableau des uris des enfants // uniquement pour naviguer dans le thesaurus
+ *                  items: les enfants // uniquement pour naviguer dans le thesaurus
+ *              }]
+ *         }
+ *         external.discipline.formater-discipline: {
+ *              scheme: 'https://service.poleterresolide.fr/voc/science_field',
+ *              title: 'Formaterre | Solid Earth Discipline ontology', // facultatif
+ *              concepts: [
+ *                  {
+ *                      id: 'D040100',
+ *                      title: 'Glacial processes',
+ *                      url: 'https://service.poleterresolide.fr/voc/science_field/D040100' *
+ *                      values: {}
+ *                  }
+ *              ] 
+ *         } 
+ * }
  */
 <i18n>
 {
@@ -158,6 +162,7 @@ export default {
             checkVocabularies: [],
             recVocabularies: [],
             searchVocabularies: [],
+            schemes: {},
             vocname: {},
             renderComponent: {},
             showOthers: false,
@@ -256,7 +261,14 @@ export default {
             if (!thesaurus[keyword.vocab]) {
                 thesaurus[keyword.vocab] = []
             }
-            thesaurus[keyword.vocab].push(keyword)
+            var kw =  { 
+                vocab: keyword.vocab,
+                url: keyword.uri, 
+                title: keyword.values.en, 
+                values: keyword.values, 
+                scheme: this.schemes[keyword.vocab]
+            }
+            thesaurus[keyword.vocab].push(kw)
             this.$emit('input', {...this.value, thesaurus: thesaurus})
             this.update(keyword.vocab)
 
@@ -337,6 +349,7 @@ export default {
                 json[0].forEach(function (th) {
                    
                     if (self.excluded.indexOf(th.key) < 0) {
+                        self.schemes[th.key] = th.defaultNamespace
                         if (self.listed.indexOf(th.key) >= 0) {
                             th.checked = true
                             self.vocname[th.key] = th
@@ -361,7 +374,7 @@ export default {
             }
             var searchVocabularies = this.recVocabularies.concat(others).map(x => x.key)
             this.searchVocabularies = searchVocabularies.filter(x => this.fixed.indexOf(x) < 0)
-            console.log(this.searchVocabularies)
+            console.log(this.schemes)
             this.vocabularies = vocabularies
         },
         update (vocab) {

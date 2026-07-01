@@ -58,7 +58,7 @@ export default {
             this.$emit('remove', item)
         },
         isChecked (item) {
-            var find = this.selected.find(x => x.uri === item.uri)
+            var find = this.selected.find(x => x.url === item.uri)
             return find
         },
         isFixed (item) {
