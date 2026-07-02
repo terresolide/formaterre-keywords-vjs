@@ -57,7 +57,7 @@ const Reader = class Reader {
       var concept = null
       var item = {
         vocab: this.name,
-        uri: uri,
+        url: uri,
         values: {},
         narrowers: 0
       }
@@ -142,12 +142,12 @@ const Reader = class Reader {
         }
         var item = {
           vocab: this.name,
-          uri: uri,
+          url: uri,
           value: value,
           values: values
         }
         // find 
-        var findIndex = kws.findIndex(x => x.uri === uri)
+        var findIndex = kws.findIndex(x => x.url === uri)
         if (findIndex >= 0) {
           kws[findIndex].values = Object.assign(kws[findIndex].values, values)
           kws[findIndex].value = kws[findIndex].values.fr
@@ -233,7 +233,7 @@ const Reader = class Reader {
         var keywords = kws.filter(x => !x.broader || typeof x.broader === undefined) 
          
       } else {
-        var keywords = kws.filter(x => x.broader === kw.uri)
+        var keywords = kws.filter(x => x.broader === kw.url)
       }
       for(var i=0; i < keywords.length; i ++) {
          keywords[i].items = this.orderItems(kws, keywords[i])

@@ -236,7 +236,7 @@ export default {
     },
     methods: {
         add (keyword) {
-            if (keyword.uri) {
+            if (keyword.url) {
                 this.addResult(keyword)
                
             } else {
@@ -263,7 +263,7 @@ export default {
             }
             var kw =  { 
                 vocab: keyword.vocab,
-                url: keyword.uri, 
+                url: keyword.url, 
                 title: keyword.values.en, 
                 values: keyword.values, 
                 scheme: this.schemes[keyword.vocab]
@@ -295,10 +295,11 @@ export default {
             
         },
         isChecked (thesaurus, uri) {
+
             if (!this.value.thesaurus[thesaurus]) {
                 return false
             }
-            var find = this.value.thesaurus[thesaurus].find(x => x.uri === uri)
+            var find = this.value.thesaurus[thesaurus].find(x => x.url === uri)
             if (!find) {
                 return false
             }
@@ -306,8 +307,8 @@ export default {
         },
         
         toggle (vocab, item) {
-            if (this.isChecked(vocab, item.uri)) {
-                this.remove(vocab, {uri: item.uri})
+            if (this.isChecked(vocab, item.uri || item.url)) {
+                this.remove(vocab, {uri: item.uri || item.url})
             } else {
                 item.vocab = vocab
                 this.addResult(item)
@@ -315,11 +316,10 @@ export default {
             }
         },
         remove (vocab, item, index) {
-            console.log(vocab)
-            console.log(item)
             var thesaurus = Object.assign(this.value.thesaurus, {})
             if (thesaurus[vocab]) {
-                var newvocab = thesaurus[vocab].filter(it => it.uri != item.uri)
+                var url = item.uri || item.url
+                var newvocab = thesaurus[vocab].filter(it => it.url != url)
                 thesaurus[vocab] = newvocab
                 // var keywords = Object.assign(this.keywords, {thesaurus: thesaurus})
                     this.$emit('input', {...this.value, thesaurus: this.value.thesaurus})
