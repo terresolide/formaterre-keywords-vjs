@@ -236,7 +236,7 @@ export default {
     },
     methods: {
         add (keyword) {
-            if (keyword.url) {
+            if (keyword.url || keyword.uri) {
                 this.addResult(keyword)
                
             } else {
@@ -255,7 +255,6 @@ export default {
            
         },
         addResult (keyword) {
-            console.log(keyword)
             // ajout du scheme du thesaurus
             var thesaurus = Object.assign(this.value.thesaurus, {})
             if (!thesaurus[keyword.vocab]) {
@@ -263,7 +262,7 @@ export default {
             }
             var kw =  { 
                 vocab: keyword.vocab,
-                url: keyword.url, 
+                url: keyword.url || keyword.uri, 
                 title: keyword.values.en, 
                 values: keyword.values, 
                 scheme: this.schemes[keyword.vocab]

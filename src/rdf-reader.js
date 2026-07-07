@@ -47,7 +47,6 @@ const Reader = class Reader {
           items.push(item)
         }
       })
-      
       return items
       // get Items
 

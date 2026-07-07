@@ -2,7 +2,7 @@
 <template>
     <span>
      {{ keywords }}
-    <formaterre-keywords lang="fr" v-model="keywords">
+    <formaterre-keywords  v-model="keywords">
         Vous pouvez, ci-dessous, rechercher dans tous les thésaurus/ontologies disponibles dans le catalogue FormaTerre ou afficher les thésaurus et rechercher des mots-clés.<br />
           Si vous ne trouvez pas un mot-clé, vous pouvez saisir un mot-clé libre, et même suggérer qu'il soit ajouté aux thésaurus.</div>
        

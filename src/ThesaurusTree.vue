@@ -12,7 +12,7 @@
             <span class="mini-button expand" @click="toggleExpand($event)">-</span>
             <span class="subtree">
               
-              <thesaurus-tree :items="item.items"  :uri="item.uri" :selected="selected" @add="add" @remove="remove" @search="search"></thesaurus-tree>
+              <thesaurus-tree :items="item.items"  :uri="item.url" :selected="selected" @add="add" @remove="remove" @search="search"></thesaurus-tree>
             </span>
         </template>
         <template v-else-if="item.narrowers && item.narrowers.length > 0">
@@ -77,19 +77,16 @@ export default {
            
         },
         getItems (item) {
-            this.search([item.uri], item)
+            this.search([item.url], item)
             var self = this
             setTimeout(function () {
                 self.$forceUpdate()
             }, 0)
         },
         toggle (item) {
-           console.log(item)
            if (this.isChecked(item)) {
-                console.log('remove')
                 this.remove( item)
            } else {
-                console.log('add')
                 this.add(item)
            }
         },

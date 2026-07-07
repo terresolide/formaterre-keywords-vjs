@@ -86,9 +86,7 @@
             add (item) {
                 this.$emit('add', item)
             },
-            remove ( item) {
-                console.log(this.thesaurus)
-                console.log(item)
+            remove (item) {
                 this.$emit('remove', item.vocab, item)
             },
             close () {
@@ -98,7 +96,7 @@
                this.items = this.getChildItems(path, this.items, 0, item.narrowers)
             },
             getChildItems (path, items, index, narrowers) {
-                var pos = items.findIndex(x => x.uri === path[index] )
+                var pos = items.findIndex(x => x.url === path[index] )
                 if (pos >= 0) {
                     if (path.length - 1 > index) {
                         items[pos].items = this.getChildItems(path, items[pos].items, index + 1, narrowers)
