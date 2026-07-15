@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-   "production": {
+  "production": {
     "url": "https://cdn.jsdelivr.net/gh/terresolide"
   },
   "scripts": {
@@ -18,7 +18,8 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
-    "vue": "^3.5.32"
+    "vue": "^3.5.32",
+    "vue-i18n": "^11.4.6"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
