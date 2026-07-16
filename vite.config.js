@@ -9,13 +9,15 @@ var prodUrl = PACKAGE.production.url + '/' + buildName + '@' + buildVersion +  '
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    vue({
-      template: {
-        compilerOptions: {
-          isCustomElement: (tag) => tag.includes('formaterre-')
-        }
-      }
-    }),
+    vue({customElement:true}
+    //   {
+    //   template: {
+    //     compilerOptions: {
+    //       isCustomElement: (tag) => tag.includes('formaterre-')
+    //     }
+    //   }
+    // }
+  ),
     vueDevTools(),
   ],
   build: {
