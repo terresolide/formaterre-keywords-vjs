@@ -171,7 +171,7 @@ export default {
           return
         }
        
-        var promise1 = this.requestGeonetwork(query, 'fre')
+       // var promise1 = this.requestGeonetwork(query, 'fre')
        // var promise2 = this.requestGeonetwork(query, 'eng')
        //  Promise.all([promise1])
         this.requestGeonetwork(query, 'fre')
