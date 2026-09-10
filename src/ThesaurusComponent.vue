@@ -2,7 +2,7 @@
 <template>
 <span>
     <template v-if="thesaurus">
-        <h4 v-if="format !== 'checkbox'">{{ thesaurus.title }} <button v-if="!fixed" @click="load()">{{lang === 'fr' ? 'Afficher' : 'Display'}}</button></h4>
+        <h4 v-if="format !== 'checkbox'">{{ thesaurus.title }} <button v-if="!fixed" @click="load($event)">{{lang === 'fr' ? 'Afficher' : 'Display'}}</button></h4>
         <div v-if="renderComponent && !hidden" :class="{thesaurus: format!= 'checkbox'}">
             <span v-if="format !== 'checkbox'"  @click="close()" class="mini-button close">&times;</span>
             <h4 style="padding-right: 20px;">{{ thesaurus.title }}</h4>
@@ -106,7 +106,11 @@
                 }
                 return items
             },
-            load() {
+            load(evt) {
+                if (evt) {
+                    evt.preventDefault()
+                    evt.stopPropagation()
+                }
                 if (this.items.length > 0) {
                     this.renderComponent = true
                     return

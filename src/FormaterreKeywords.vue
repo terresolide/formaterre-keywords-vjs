@@ -135,11 +135,11 @@ export default {
         },
         listed: {
             type: Array,
-            default: () => ['local.theme.formaterre_themes']
+            default: () => ['local.theme.formaterre_cdos']
         },
         required: {
             type: Array,
-            default: () => ['local.theme.formaterre_themes']
+            default: () => ['local.theme.formaterre_cdos']
         },
         recommanded: {
             type: Array,
@@ -246,10 +246,12 @@ export default {
         },
         addFree (keyword) {
             var free = this.value.free
+            
             if (!free[keyword.type]) {
                 free[keyword.type] = []
             }
             free[keyword.type].push(keyword)
+            console.log(free)
             this.$emit('input', {...this.value, free: free})
             this.$forceUpdate()
            
