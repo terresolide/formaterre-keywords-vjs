@@ -70,6 +70,11 @@ const Reader = class Reader {
           item.values[lang] = label.innerHTML
           label = labels.iterateNext()
         }
+        var scheme = root.evaluate('./skos:inScheme/@rdf:resource', concept, nsResolver, XPathResult.toString_TYPE, null)
+        if (scheme.resultType === XPathResult.STRING_TYPE && scheme.stringValue) {
+          console.log(scheme)
+          item.scheme = scheme.stringValue
+        }
         item.value = item.values.fr || item.values.en
         item.narrowers = this.getNarrowers(root, concept, nsResolver)
         if (item.narrowers.length === 0) {
@@ -135,6 +140,7 @@ const Reader = class Reader {
             values[lang] = x.innerHTML
           }
         }
+        
         var value = values.en
         if (values[this.lang]) {
           value = values[this.lang]
@@ -144,6 +150,11 @@ const Reader = class Reader {
           url: uri,
           value: value,
           values: values
+        }
+        var scheme = root.evaluate('./skos:inScheme/@rdf:resource', node, nsResolver, XPathResult.STRING_TYPE, null)
+        if (scheme.resultType === XPathResult.STRING_TYPE && scheme.stringValue) {
+           item.scheme = scheme.stringValue
+          // console.log(item.scheme)
         }
         // find 
         var findIndex = kws.findIndex(x => x.url === uri)

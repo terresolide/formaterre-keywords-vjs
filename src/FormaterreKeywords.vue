@@ -267,12 +267,16 @@ export default {
                 title: keyword.values.en, 
                 values: keyword.values
             }
-            if (kw.url.indexOf(this.schemes[keyword.vocab]) === 0) {
-                kw.scheme = this.schemes[keyword.vocab]
+            if (keyword.scheme) {
+                kw.scheme = keyword.scheme
             } else {
-                var find = /(.*)(?:[\/#][^\/^#]+)ss$/.exec(kw.url)
-                if (find) {
-                    kw.scheme = find[1]
+                if (kw.url.indexOf(this.schemes[keyword.vocab]) === 0) {
+                    kw.scheme = this.schemes[keyword.vocab]
+                } else {
+                    var find = /(.*)(?:[\/#][^\/^#]+)$/.exec(kw.url)
+                    if (find) {
+                        kw.scheme = find[1]
+                    }
                 }
             }
             thesaurus[keyword.vocab].push(kw)
