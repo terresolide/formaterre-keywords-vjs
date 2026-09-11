@@ -251,7 +251,6 @@ export default {
                 free[keyword.type] = []
             }
             free[keyword.type].push(keyword)
-            console.log(free)
             this.$emit('input', {...this.value, free: free})
             this.$forceUpdate()
            
@@ -266,8 +265,15 @@ export default {
                 vocab: keyword.vocab,
                 url: keyword.url || keyword.uri, 
                 title: keyword.values.en, 
-                values: keyword.values, 
-                scheme: this.schemes[keyword.vocab]
+                values: keyword.values
+            }
+            if (kw.url.indexOf(this.schemes[keyword.vocab]) === 0) {
+                kw.scheme = this.schemes[keyword.vocab]
+            } else {
+                var find = /(.*)(?:[\/#][^\/^#]+)ss$/.exec(kw.url)
+                if (find) {
+                    kw.scheme = find[1]
+                }
             }
             thesaurus[keyword.vocab].push(kw)
             this.$emit('input', {...this.value, thesaurus: thesaurus})
@@ -375,11 +381,10 @@ export default {
             }
             var searchVocabularies = this.recVocabularies.concat(others).map(x => x.key)
             this.searchVocabularies = searchVocabularies.filter(x => this.fixed.indexOf(x) < 0)
-            console.log(this.schemes)
+
             this.vocabularies = vocabularies
         },
         update (vocab) {
-            console.log(vocab)
             var self = this
            // setTimeout(function () {
                 if (!this.renderComponent.hasOwnProperty(vocab)) {
@@ -388,7 +393,6 @@ export default {
 
                     this.$set(this.renderComponent,vocab, this.renderComponent[vocab] + 1) 
                 }
-            console.log(this.renderComponent)
           //  }, 10)
             this.$forceUpdate()
             // this.renderComponent = false

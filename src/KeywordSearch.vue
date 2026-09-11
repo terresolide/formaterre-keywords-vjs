@@ -131,6 +131,7 @@ export default {
     addResult (index) {
      // this.results[index].inScheme = this.listed[this.results[index].vocab]
      // this.value = value
+     console.log(this.results[index])
       this.$emit('add', this.results[index])
       this.reset()
     },
