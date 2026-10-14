@@ -135,7 +135,7 @@ export default {
         },
         listed: {
             type: Array,
-            default: () => ['local.theme.formaterre_cdos']
+            default: () => ['external.discipline.formater-discipline']
         },
         required: {
             type: Array,
@@ -143,12 +143,12 @@ export default {
         },
         recommanded: {
             type: Array,
-            default: () => ['external.discipline.formater-discipline', 'external.theme.formater-foi-gn', 'external.platform.formater-platform-gn']
-        },
+            default: () => ['external.theme.formater-foi-gn', 'external.platform.formater-platform-gn']
+        }, 
         excluded: {
             type: Array,
-            default: () => ['external.dataCentre.formater-distributor', 'local.theme.polarisation', 'local.theme.ron']
-        }, 
+            default: () => []
+        },
         fixed: {
             type: Array,
             default: () => [ 'external.product.formaterre-product-gn']
@@ -186,6 +186,13 @@ export default {
                     definition: {
                         fr: 'Mot clé identifiant une plateforme',
                         en: 'Keyword identifying a platform'
+                    }
+                },
+                instrument: {
+                    name: {fr: 'Instrument', en: 'Instrument'},
+                    definition: {
+                        fr: 'Mot clé identifiant un instrument',
+                        en: 'Keyword identifying an instrument'
                     }
                 },
                 datacentre: {
